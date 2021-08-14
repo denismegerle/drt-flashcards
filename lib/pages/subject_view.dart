@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../logic.dart';
-import '../utils_widgets.dart';
+import 'package:iternia/pages/subject_add.dart';
+import 'package:iternia/logic.dart';
+import 'package:iternia/utils_widgets.dart';
 
 class SubjectView extends StatefulWidget {
   const SubjectView({Key? key, required this.title}) : super(key: key);
@@ -58,7 +59,12 @@ class _SubjectViewState extends State<SubjectView> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => SubjectAdd()),
+          );
+        },
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
@@ -85,60 +91,63 @@ class SubjectCard extends StatelessWidget {
         elevation: 5,
         margin: const EdgeInsets.all(12.0),
         /* card image and description */
-        child: Column(
-          //crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            FixedHeightImage(
-              height: 125,
-              image: subject.image,
-            ),
-            Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Column(
-                children: [
-                  Text(subject.name,
-                      style: Theme.of(context).textTheme.headline6),
-                  const SizedBox(height: 5),
-                  Row(
-                    children: [
-                      RichText(
-                        text: TextSpan(
-                          style: Theme.of(context).textTheme.caption,
-                          children: [
-                            WidgetSpan(
-                              child: Icon(
-                                Icons.auto_stories_outlined,
-                                color: Colors.grey,
-                                size: Theme.of(context)
-                                    .textTheme
-                                    .caption!
-                                    .fontSize,
-                              ),
-                            ),
-                            TextSpan(
-                                text: ' ${subject.amountOfDecks}  \u2022 '),
-                            WidgetSpan(
-                              child: Icon(
-                                Icons.auto_awesome_motion_sharp,
-                                color: Colors.grey,
-                                size: Theme.of(context)
-                                    .textTheme
-                                    .caption!
-                                    .fontSize,
-                              ),
-                            ),
-                            TextSpan(text: ' ${subject.amountOfCards}'),
-                          ],
-                        ),
-                      ),
-                      const Spacer(),
-                      Text('XXX', style: Theme.of(context).textTheme.caption),
-                    ],
-                  ),
-                ],
+        child: InkWell(
+          onTap: () => {},
+          child: Column(
+            //crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FixedHeightImage(
+                height: 125,
+                image: subject.image,
               ),
-            ),
-          ],
+              Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Column(
+                  children: [
+                    Text(subject.name,
+                        style: Theme.of(context).textTheme.headline6),
+                    const SizedBox(height: 5),
+                    Row(
+                      children: [
+                        RichText(
+                          text: TextSpan(
+                            style: Theme.of(context).textTheme.caption,
+                            children: [
+                              WidgetSpan(
+                                child: Icon(
+                                  Icons.auto_stories_outlined,
+                                  color: Colors.grey,
+                                  size: Theme.of(context)
+                                      .textTheme
+                                      .caption!
+                                      .fontSize,
+                                ),
+                              ),
+                              TextSpan(
+                                  text: ' ${subject.amountOfDecks}  \u2022 '),
+                              WidgetSpan(
+                                child: Icon(
+                                  Icons.auto_awesome_motion_sharp,
+                                  color: Colors.grey,
+                                  size: Theme.of(context)
+                                      .textTheme
+                                      .caption!
+                                      .fontSize,
+                                ),
+                              ),
+                              TextSpan(text: ' ${subject.amountOfCards}'),
+                            ],
+                          ),
+                        ),
+                        const Spacer(),
+                        Text('XXX', style: Theme.of(context).textTheme.caption),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

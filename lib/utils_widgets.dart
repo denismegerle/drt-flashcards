@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class FixedHeightImage extends StatelessWidget {
-  const FixedHeightImage({Key? key, required this.height, required this.image}) : super(key: key);
+  const FixedHeightImage({Key? key, required this.height, required this.image})
+      : super(key: key);
 
   final double height;
   final ImageProvider image;

@@ -16,4 +16,22 @@ class Subject {
 }
 
 class Deck {}
-class FlashCard {}
+
+class FlashCard {
+  final String front;
+  final String back;
+
+  const FlashCard({required this.front, required this.back});
+  /*
+  String name;
+  int lastReviewTime;
+  double forgettingRate;
+  double q, alpha, beta;
+  */
+  // FlashCard(...)
+  // computeForgettingRate
+  // computeRecallProbability
+  // computeReviewingIntensity
+  // sampleNextReviewTime
+  //
+}
