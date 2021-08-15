@@ -1,8 +1,12 @@
 import 'package:flutter/cupertino.dart';
 
 class Subject {
-  String name;
-  List<Deck> decks;
+  String name = 'Untitled';
+  List<Deck> decks = <Deck>[];
+  String imageLink = sampleImageLink;
+
+  static const sampleImageLink =
+      'https://www.world-insight.de/fileadmin/data/Headerbilder/landingpages/Japan_1440x600.jpg';
 
   int get amountOfDecks {
     return decks.length;
@@ -15,10 +19,10 @@ class Subject {
 
   int get amountOfDueCards {
     return decks.fold(0,
-            (previousValue, element) =>
-        previousValue + element.amountOfDueCards);
+        (previousValue, element) => previousValue + element.amountOfDueCards);
   }
 
+  Subject.fresh();
   Subject({required this.name, required this.decks});
 
 // TODO image (suggest saving thumbnails and using these, much smaller versions instead)
@@ -41,22 +45,26 @@ class Deck {
   }
 
   int get amountOfDueCards {
-    return cards.fold(0, (previousValue, element) => previousValue +
-        (element.isDue ? 1 : 0));
+    return cards.fold(
+        0, (previousValue, element) => previousValue + (element.isDue ? 1 : 0));
   }
 
   Deck({required this.name, required this.cards});
 }
 
 class FlashCard {
-  final String front;
-  final String back;
+  String front = '';
+  String back = '';
 
   bool get isDue {
-    return true;  // TODO calc this based on whatever algorithm chosen...
+    return true; // TODO calc this based on whatever algorithm chosen...
   }
 
-  const FlashCard({required this.front, required this.back});
+  FlashCard.fresh();
+  FlashCard({required this.front, required this.back});
+
+  clone() => FlashCard(front: front, back: back);
+
 /*
   String name;
   int lastReviewTime;

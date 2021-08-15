@@ -5,6 +5,7 @@ import 'pages/subject_add.dart';
 import 'pages/swipe_learning.dart';
 import 'pages/card_add.dart';
 import 'pages/deck_view.dart';
+import 'pages/image_search.dart';
 
 void main() {
   runApp(MyApp());
@@ -14,6 +15,11 @@ void main() {
   TODO:
   - edit card add to also be able to edit (take in card, if null then add, if card then edit)
   - edit subject add to also be able to edit subjects, same idea as in card add
+  - rename cards view and everything in there to flashcard view etc
+  - refactor all smaller widgets to take onX methods and implement these only in the main state!
+  - refactor names of card_add to smth add/edit represent, same with subject add
+  - think about removing subject add view and only use bottom sheet to add cards, can still take img technically
+  - refactor all navigation between screens to _navigate* methods
  */
 class MyApp extends StatelessWidget {
   MyApp({Key? key}) : super(key: key);
@@ -31,6 +37,10 @@ class MyApp extends StatelessWidget {
         title: 'Subjects',
         subjects: data,
       ),
+
+     /*
+      home: SubjectView(title: 'img search title'),
+       */
     );
   }
 }

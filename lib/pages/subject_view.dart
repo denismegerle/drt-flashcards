@@ -1,23 +1,46 @@
 import 'package:flutter/material.dart';
-import 'package:iternia/pages/subject_add.dart';
-import 'package:iternia/logic.dart';
-import 'package:iternia/common.dart';
+
+import '../common.dart';
+import '../logic.dart';
+import 'deck_view.dart';
+import 'subject_add.dart';
 
 class SubjectView extends StatefulWidget {
-  SubjectView({
+  const SubjectView({
     Key? key,
     required this.title,
     required this.subjects,
   }) : super(key: key);
 
   final String title;
-  List<Subject> subjects;
+  final List<Subject> subjects;
 
   @override
   State<SubjectView> createState() => _SubjectViewState();
 }
 
 class _SubjectViewState extends State<SubjectView> {
+  void _navigateToSubjectCreation(BuildContext context) async {
+    final Subject? result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => SubjectAdd(
+                title: 'Add subject',
+                subject: Subject.fresh(),
+              )),
+    );
+
+    if (result != null) {
+      setState(() {
+        widget.subjects.add(result);
+      });
+    }
+  }
+
+  void _updateState() {
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,38 +52,60 @@ class _SubjectViewState extends State<SubjectView> {
         child: ListView.builder(
           itemCount: widget.subjects.length,
           itemBuilder: (context, index) =>
-              SubjectCard(subject: widget.subjects[index]),
+              SubjectCard(subject: widget.subjects[index], updateCallback: _updateState,),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const SubjectAdd()),
-          );
-        },
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _navigateToSubjectCreation(context),
+        label: const Text('Add subject'),
+        icon: const Icon(Icons.add),
+        heroTag: 'add',
       ),
     );
   }
 }
 
 class SubjectCard extends StatelessWidget {
-  const SubjectCard({Key? key, required this.subject}) : super(key: key);
+  const SubjectCard({Key? key, required this.subject, this.updateCallback}) : super(key: key);
+
+  final Function? updateCallback;
 
   final Subject subject;
+  final double subjectCardSizeFactor = 0.375;
+  final double imageHeightFactor = 0.55;
+  final double infoHeightFactor = 0.33;
 
-  /*
-  Widget _buildCardInformation() {
-
+  void _navigateToDeckView(context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => DeckView(
+                title: subject.name,
+                subject: subject,
+              )),
+    );
   }
-  */
+
+  void _navigateToSubjectEdit(context) async {
+    final Subject? result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => SubjectAdd(
+                title: 'Edit subject',
+                subject: subject,
+              )),
+    );
+
+    if (result != null) {
+      updateCallback!();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 225,
+      height: MediaQuery.of(context).size.height * subjectCardSizeFactor,
       child: Card(
         /* rounded corners */
         semanticContainer: true,
@@ -72,17 +117,24 @@ class SubjectCard extends StatelessWidget {
         margin: const EdgeInsets.all(12.0),
         /* card image and description */
         child: InkWell(
-          onTap: () => {},
+          onTap: () => _navigateToDeckView(context),
+          onLongPress: () => _navigateToSubjectEdit(context),
           child: Column(
-            //crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               FixedHeightImage(
-                height: 125,
-                image: subject.image,
+                height: MediaQuery.of(context).size.height *
+                    subjectCardSizeFactor *
+                    imageHeightFactor,
+                image: subject.imageLink,
               ),
-              Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: SubjectCardContent(subject: subject),
+              SizedBox(
+                height: MediaQuery.of(context).size.height *
+                    subjectCardSizeFactor *
+                    infoHeightFactor,
+                child: Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: SubjectCardContent(subject: subject),
+                ),
               ),
             ],
           ),
@@ -103,6 +155,7 @@ class SubjectCardContent extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(subject.name, style: Theme.of(context).textTheme.headline6),
+        const Spacer(),
         Row(
           children: [
             RichText(
@@ -136,3 +189,17 @@ class SubjectCardContent extends StatelessWidget {
     );
   }
 }
+
+
+
+
+/*
+old shit
+floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _navigateToSubjectCreation(context),
+        label: const Text('Add subject'),
+        icon: const Icon(Icons.add),
+        heroTag: 'add',
+      ),
+      
+ */

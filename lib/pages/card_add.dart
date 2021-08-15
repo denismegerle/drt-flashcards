@@ -1,11 +1,13 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../logic.dart';
+import '../common.dart';
 
 class CardAdd extends StatefulWidget {
-  const CardAdd({Key? key, required this.title}) : super(key: key);
+  const CardAdd({Key? key, required this.title, this.flashCard}) : super(key: key);
 
   final String title;
+  final FlashCard? flashCard;
 
   @override
   State<CardAdd> createState() => _CardAddState();
@@ -14,12 +16,20 @@ class CardAdd extends StatefulWidget {
 class _CardAddState extends State<CardAdd> {
   late TextEditingController _frontController;
   late TextEditingController _backController;
+  late FlashCard newCard;
 
   @override
   void initState() {
     super.initState();
-    _frontController = TextEditingController();
-    _backController = TextEditingController();
+    if (widget.flashCard != null) {
+      _frontController = TextEditingController(text: widget.flashCard!.front);
+      _backController = TextEditingController(text: widget.flashCard!.back);
+    } else {
+      _frontController = TextEditingController();
+      _backController = TextEditingController();
+    }
+
+    newCard = widget.flashCard != null ? widget.flashCard!.clone() : FlashCard.fresh();
   }
 
   @override
@@ -34,16 +44,11 @@ class _CardAddState extends State<CardAdd> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        appBar: AppBar(
+        appBar: MinimalistAppBar(
           // Here we take the value from the MyHomePage object that was created by
           // the App.build method, and use it to set our appbar title.
           title: Text(widget.title),
-          titleTextStyle: Theme.of(context).textTheme.headline6,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          iconTheme: const IconThemeData(
-            color: Colors.black,
-          ),
+          context: context,
           bottom: TabBar(
             tabs: [
               Tab(
@@ -59,7 +64,11 @@ class _CardAddState extends State<CardAdd> {
               padding: EdgeInsets.only(right: 10.0),
               child: IconButton(
                 icon: Icon(Icons.check),
-                onPressed: () {},
+                onPressed: () {
+                  newCard.front = _frontController.value.text;
+                  newCard.back = _backController.value.text;
+                  Navigator.pop(context, newCard);
+                },
               ),
             ),
           ],
