@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../logic.dart';
-import '../utils_widgets.dart';
+import '../common.dart';
 
 class SubjectAdd extends StatefulWidget {
   const SubjectAdd({Key? key}) : super(key: key);

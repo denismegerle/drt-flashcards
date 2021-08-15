@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../logic.dart';
-import '../utils_widgets.dart';
+import '../common.dart';
 import 'package:flutter_swipable/flutter_swipable.dart';
 import 'package:flip_card/flip_card.dart';
 
