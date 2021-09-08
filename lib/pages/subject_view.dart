@@ -61,6 +61,7 @@ class _SubjectViewState extends State<SubjectView> {
         widget.subjects.add(result);
       });
     }
+    Navigator.pop(context);
   }
 
   void _navigateToDeckView(BuildContext context, int index) async {
