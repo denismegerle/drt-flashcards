@@ -33,6 +33,14 @@ final ThemeData cleanThemeDark = ThemeData(
   floatingActionButtonTheme: const FloatingActionButtonThemeData(
     backgroundColor: Colors.white,
   ),
+  textTheme: const TextTheme(
+    caption: TextStyle(
+      color: Colors.grey,
+    ),
+    bodyText2: TextStyle(
+      color: Colors.black,
+    ),
+  )
 );
 
 class ThemeDataProvider with ChangeNotifier {
@@ -76,7 +84,7 @@ class ThemeDataProvider with ChangeNotifier {
 
   Future _loadPrefs() async {
     prefs = await _prefs;
-    _useDarkTheme = prefs.getBool("useDarkMode") ?? true;
+    _useDarkTheme = prefs.getBool("useDarkMode") ?? false;
     _themeData = _useDarkTheme ? cleanThemeDark : cleanTheme;
     notifyListeners();
   }

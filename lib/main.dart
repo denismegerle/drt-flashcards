@@ -78,7 +78,6 @@ class _IterniaAppState extends State<IterniaApp> with WidgetsBindingObserver {
     return MaterialApp(
       title: constants.appTitle,
       theme: currentTheme,
-      darkTheme: currentTheme.copyWith(brightness: Brightness.dark),
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
