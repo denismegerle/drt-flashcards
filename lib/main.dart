@@ -128,7 +128,6 @@ Future<void> _save(String data, String saveFile) async {
 
 /* JUST SOME SAMPLE METHODS */
 List<Subject> _generateSampleData() {
-  // TODO add one more item here..., maybe even more...
   return [
     Subject(
       name: 'Maths',

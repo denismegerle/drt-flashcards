@@ -6,7 +6,7 @@ import 'constants.dart' as constants;
 part 'logic.g.dart';
 
 enum FlashCardOrder { none, random }
-enum FlashCardSwipe { left, right, up }
+enum FlashCardSwipe { left, right, up, none }
 
 @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
 class Database {
@@ -174,6 +174,8 @@ class FlashCard {
           spreadFactor *= 1.2;
           if (spreadFactor > subject.spreadFactorRange.end) spreadFactor = subject.spreadFactorRange.end;
         }
+        break;
+      case FlashCardSwipe.none:
         break;
     }
   }

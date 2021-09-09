@@ -6,7 +6,6 @@ import 'package:flutter_swipable/flutter_swipable.dart';
 import '../common.dart';
 import '../logic.dart';
 
-// TODO standardize and cleanup
 class SwipeLearning extends StatefulWidget {
   const SwipeLearning({Key? key, required this.title, required this.subject, required this.cardList}) : super(key: key);
 

@@ -12,13 +12,13 @@ Used concepts:
 ## Implemented Features
 Iternia Flashcard offers a simple spaced repetition system and access to subjects, decks per subject and cards per deck. Data is stored locally. 
 
-<img align="right" width="216" height="384" src="images/demo1.gif">
+<img align="right" width="216" height="384" src="demos/demo1.gif">
 
 ### Data Storage
 Data is stored locally, subdivided into Subjects, Decks and Cards. Each subject can have parameters that define its spread in the spaced repetition algorithm per correct/incorrect answer.
 
 
-<img align="left" width="162" height="288" src="images/demo2.gif">
+<img align="left" width="162" height="288" src="demos/demo2.gif">
 
 ### Swiped Learning
 When learning, swiping left/right is a negative/positive feedback respectively. Swiping up indicates an easy card that can be reviewed even later.
@@ -50,5 +50,4 @@ flutter build web --release                   # web
 
 ## References
 
-[1] *AppIcon*
-<div>Icons made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+[1] *App Icon* : Icons made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>

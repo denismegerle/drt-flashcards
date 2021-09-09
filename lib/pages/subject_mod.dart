@@ -233,13 +233,24 @@ class _SubjectModState extends State<SubjectMod> {
             ),
           ),
           ListTile(
-            // TODO: calculate this crap here...
-            subtitle: Text(AppLocalizations.of(context)!
-                .subject_settings_spreading_results('0 1 2 3 4 timediff')), // TODO calc this here
+            subtitle:
+                Text(AppLocalizations.of(context)!.subject_settings_spreading_results(_calcSampleSpreadResults())),
           ),
         ],
       ),
     );
+  }
+
+  String _calcSampleSpreadResults() {
+    FlashCard sampleCard = FlashCard(
+      spreadTime: widget.subject.initialSpreadTime,
+      spreadFactor: widget.subject.initialSpreadFactor,
+    );
+
+    return List<String>.generate(5, (i) {
+      sampleCard.update(widget.subject, FlashCardSwipe.right);
+      return getOptimalDurationString(Duration(minutes: sampleCard.dueTime));
+    }).toList().toString();
   }
 
   @override
