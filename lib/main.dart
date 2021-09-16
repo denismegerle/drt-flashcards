@@ -37,10 +37,6 @@ class MyApp extends StatelessWidget {
         title: 'Subjects',
         subjects: data,
       ),
-
-     /*
-      home: SubjectView(title: 'img search title'),
-       */
     );
   }
 }

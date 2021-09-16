@@ -45,6 +45,7 @@ class Deck {
   }
 
   int get amountOfDueCards {
+    return 0;
     return cards.fold(
         0, (previousValue, element) => previousValue + (element.isDue ? 1 : 0));
   }

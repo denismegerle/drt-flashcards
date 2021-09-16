@@ -118,6 +118,10 @@ class DeckCard extends StatelessWidget {
                   Text('Deck description (TODO)'),
                 ],
               ),
+              trailing: TextButton(
+                child: Text('Study'),
+                onPressed: () {},
+              ),
             ),
           ],
         ),
