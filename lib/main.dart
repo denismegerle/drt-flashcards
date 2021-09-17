@@ -67,6 +67,7 @@ List<Subject> _generateSampleData() {
   return [
     Subject(
       name: 'Maths',
+      description: 'My basic maths equations',
       decks: [
         Deck(
           name: 'Maths Lesson 1',
@@ -86,6 +87,7 @@ List<Subject> _generateSampleData() {
     ),
     Subject(
       name: 'Japanese',
+      description: 'Japanese vocabulary and grammar practices',
       decks: [
         Deck(
           name: 'Japanese Lesson 1',
@@ -112,6 +114,7 @@ List<Subject> _generateSampleData() {
     ),
     Subject(
       name: 'English',
+      description: 'English is really simple, isn\'t it?',
       decks: [
         Deck(
           name: 'English Lesson 1',

@@ -1,9 +1,18 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
+enum FlashCardOrder { none, random }
 
 class Subject {
-  String name = 'Untitled';
-  List<Deck> decks = <Deck>[];
-  String imageLink = sampleImageLink;
+  String name;
+  String description;
+  List<Deck> decks;
+  String imageLink;
+
+  bool easyBonus;
+  FlashCardOrder learningOrder;
+  RangeValues spreadFactorRange;
+  double defaultSpreadFactor;
 
   static const sampleImageLink =
       'https://www.world-insight.de/fileadmin/data/Headerbilder/landingpages/Japan_1440x600.jpg';
@@ -22,17 +31,16 @@ class Subject {
         (previousValue, element) => previousValue + element.amountOfDueCards);
   }
 
-  Subject.fresh();
-  Subject({required this.name, required this.decks});
-
-// TODO image (suggest saving thumbnails and using these, much smaller versions instead)
-// TODO add decks, flashcards, more infos about it
-// more infos: last learned, ...
-// since we only add online images we might aswell only save the link to the image!
-// additional information:
-// - creation date
-  final ImageProvider image = const NetworkImage(
-      'https://www.world-insight.de/fileadmin/data/Headerbilder/landingpages/Japan_1440x600.jpg');
+  Subject({
+    this.name = '',
+    this.description = '',
+    this.decks = const <Deck>[],
+    this.imageLink = sampleImageLink,
+    this.easyBonus = true,
+    this.learningOrder = FlashCardOrder.none,
+    this.spreadFactorRange = const RangeValues(2.0, 3.0),
+    this.defaultSpreadFactor = 2.5,
+  });
 }
 
 class Deck {
@@ -45,7 +53,6 @@ class Deck {
   }
 
   int get amountOfDueCards {
-    return 0;
     return cards.fold(
         0, (previousValue, element) => previousValue + (element.isDue ? 1 : 0));
   }
@@ -56,26 +63,16 @@ class Deck {
 class FlashCard {
   String front = '';
   String back = '';
+  int lastReviewTime = 0;
+  double spreadFactor = 2.5;
 
   bool get isDue {
     return true; // TODO calc this based on whatever algorithm chosen...
   }
 
   FlashCard.fresh();
+
   FlashCard({required this.front, required this.back});
 
   clone() => FlashCard(front: front, back: back);
-
-/*
-  String name;
-  int lastReviewTime;
-  double forgettingRate;
-  double q, alpha, beta;
-  */
-// FlashCard(...)
-// computeForgettingRate
-// computeRecallProbability
-// computeReviewingIntensity
-// sampleNextReviewTime
-//
 }

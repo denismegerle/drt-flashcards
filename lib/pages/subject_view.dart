@@ -24,14 +24,34 @@ class SubjectView extends StatefulWidget {
 }
 
 class _SubjectViewState extends State<SubjectView> {
+  late TextEditingController _titleController;
+  late TextEditingController _descriptionController;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController();
+    _descriptionController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
   void _navigateToSubjectCreation(BuildContext context) async {
     final Subject? result = await Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => SubjectAdd(
-                title: 'Add subject',
-                subject: Subject.fresh(),
-              )),
+        builder: (context) => SubjectAdd(
+          title: 'Add subject',
+          subject: Subject(
+              name: _titleController.value.text,
+              description: _descriptionController.value.text),
+        ),
+      ),
     );
 
     if (result != null) {
@@ -46,9 +66,9 @@ class _SubjectViewState extends State<SubjectView> {
       context,
       MaterialPageRoute(
           builder: (context) => DeckView(
-            title: widget.subjects[index].name,
-            subject: widget.subjects[index],
-          )),
+                title: widget.subjects[index].name,
+                subject: widget.subjects[index],
+              )),
     );
   }
 
@@ -57,9 +77,9 @@ class _SubjectViewState extends State<SubjectView> {
       context,
       MaterialPageRoute(
           builder: (context) => SubjectAdd(
-            title: 'Edit subject',
-            subject: widget.subjects[index],
-          )),
+                title: 'Edit subject',
+                subject: widget.subjects[index],
+              )),
     );
 
     if (result != null) {
@@ -71,9 +91,20 @@ class _SubjectViewState extends State<SubjectView> {
 
   void _deleteSubject(int index) {
     widget.subjects.removeAt(index);
+    updateWidget();
+  }
+
+  void _createSubject() {
+    widget.subjects.add(Subject(
+        name: _titleController.value.text,
+        description: _descriptionController.value.text));
+    updateWidget();
+  }
+
+  Future<void> updateWidget() async {
     setState(() {});
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,7 +123,12 @@ class _SubjectViewState extends State<SubjectView> {
         ),
       ),
       body: Center(
+          child: RefreshIndicator(
+        onRefresh: () => updateWidget(),
         child: ListView.builder(
+          padding:
+              const EdgeInsets.only(bottom: 56),
+          physics: const AlwaysScrollableScrollPhysics(),
           itemCount: widget.subjects.length,
           itemBuilder: (context, index) => FocusedMenuHolder(
             menuWidth: MediaQuery.of(context).size.width,
@@ -103,7 +139,16 @@ class _SubjectViewState extends State<SubjectView> {
             menuItemExtent: 45,
             menuOffset: 10.0,
             menuItems: [
-              // Add Each FocusedMenuItem  for Menu Options
+              widget.subjects[index].description.isNotEmpty
+                  ? FocusedMenuItem(
+                      title: Text(widget.subjects[index].description,
+                          style: Theme.of(context).textTheme.caption),
+                      onPressed: () => {},
+                    )
+                  : FocusedMenuItem(
+                      title: Text('description empty...',
+                          style: Theme.of(context).textTheme.caption),
+                      onPressed: () {}),
               FocusedMenuItem(
                 title: const Text("Open"),
                 trailingIcon: const Icon(Icons.open_in_new),
@@ -146,7 +191,7 @@ class _SubjectViewState extends State<SubjectView> {
             ),
           ),
         ),
-      ),
+      )),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => showModalBottomSheet(
@@ -158,24 +203,38 @@ class _SubjectViewState extends State<SubjectView> {
           enableDrag: true,
           builder: (context) {
             return NotificationListener<DraggableScrollableNotification>(
-                onNotification: (notification) {
-                  if (notification.extent >= 0.8) {
-                    _navigateToSubjectCreation(context);
-                  }
-                  print("${notification.extent}");
-                  return true;
-                },
+              onNotification: (notification) {
+                if (notification.extent >= 0.6) {
+                  _navigateToSubjectCreation(context);
+                }
+                return true;
+              },
+              child: Padding(
+                padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom),
                 child: DraggableScrollableSheet(
-                    expand: false,
-                    initialChildSize: 0.6,
-                    minChildSize: 0.4,
-                    maxChildSize: 0.8,
-                    builder: (context, scrollController) => ListView(
-                          controller: scrollController,
-                          children: [
-                            Text('abc'),
-                          ],
-                        )));
+                  expand: false,
+                  initialChildSize: 0.4,
+                  minChildSize: 0.4,
+                  maxChildSize: 0.6,
+                  builder: (context, scrollController) => ListView(
+                    controller: scrollController,
+                    children: [
+                      SubjectBottomSheet(
+                        titleController: _titleController,
+                        descriptionController: _descriptionController,
+                        onCreateSubject: () {
+                          _createSubject();
+                          Navigator.pop(context);
+                          _titleController.clear();
+                          _descriptionController.clear();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
           },
         ),
         label: const Text('Add subject'),
@@ -184,11 +243,14 @@ class _SubjectViewState extends State<SubjectView> {
       ),
     );
   }
-
 }
 
 class SubjectCard extends StatelessWidget {
-  const SubjectCard({Key? key, required this.subject, required this.onClick, required this.onStudy})
+  const SubjectCard(
+      {Key? key,
+      required this.subject,
+      required this.onClick,
+      required this.onStudy})
       : super(key: key);
 
   final Function onClick;
@@ -198,7 +260,6 @@ class SubjectCard extends StatelessWidget {
   final double subjectCardSizeFactor = 0.375;
   final double imageHeightFactor = 0.55;
   final double infoHeightFactor = 0.33;
-
 
   @override
   Widget build(BuildContext context) {
@@ -318,12 +379,12 @@ class SubjectBottomSheet extends StatelessWidget {
       {Key? key,
       required this.titleController,
       required this.descriptionController,
-      this.onCreateDeck})
+      this.onCreateSubject})
       : super(key: key);
 
   final TextEditingController titleController;
   final TextEditingController descriptionController;
-  final Function? onCreateDeck;
+  final Function? onCreateSubject;
 
   @override
   Widget build(BuildContext context) {
@@ -332,12 +393,23 @@ class SubjectBottomSheet extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          Container(
+            padding: const EdgeInsets.all(5.0),
+            alignment: Alignment.center,
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.1,
+              height: MediaQuery.of(context).size.height * 0.01,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20.0),
+                  color: Theme.of(context).primaryColor),
+            ),
+          ),
           ListTile(
             title: TextField(
               controller: titleController,
               decoration: const InputDecoration(
                 border: InputBorder.none,
-                hintText: 'deck name...',
+                hintText: 'Subject name',
               ),
             ),
           ),
@@ -346,7 +418,7 @@ class SubjectBottomSheet extends StatelessWidget {
               controller: descriptionController,
               decoration: const InputDecoration(
                 border: InputBorder.none,
-                hintText: 'deck description...',
+                hintText: 'Subject description',
               ),
               style: Theme.of(context).textTheme.subtitle2,
             ),
@@ -355,11 +427,11 @@ class SubjectBottomSheet extends StatelessWidget {
             children: [
               const Spacer(),
               IconButton(
-                onPressed: () => onCreateDeck!(),
+                onPressed: () => onCreateSubject!(),
                 icon: const Icon(Icons.send),
               )
             ],
-          )
+          ),
         ],
       ),
     );
