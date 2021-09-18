@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:iternia/pages/subject_mod.dart';
-import 'package:iternia/logic.dart';
-import 'package:iternia/common.dart';
-import 'package:iternia/pages/swipe_learning.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
 import 'package:focused_menu/focused_menu.dart';
 import 'package:focused_menu/modals.dart';
-import '../constants.dart' as constants;
-import 'flashcards_view.dart';
 
-// TODO standardize and cleanup
+import '../common.dart';
+import '../constants.dart' as constants;
+import '../logic.dart';
+import 'flashcards_view.dart';
+import 'swipe_learning.dart';
+
+
 class DeckView extends StatefulWidget {
-  const DeckView({Key? key, required this.title, required this.subject})
-      : super(key: key);
+  const DeckView({Key? key, required this.title, required this.subject}) : super(key: key);
 
   final String title;
   final Subject subject;
@@ -77,8 +75,7 @@ class _DeckViewState extends State<DeckView> {
   void _createDeck() {
     Navigator.pop(context);
     setState(() {
-      widget.subject.decks
-          .add(Deck(name: _titleController.value.text, cards: <FlashCard>[]));
+      widget.subject.decks.add(Deck(name: _titleController.value.text, cards: <FlashCard>[]));
       _titleController.clear();
       _descriptionController.clear();
     });
@@ -92,6 +89,36 @@ class _DeckViewState extends State<DeckView> {
 
   Future<void> updateWidget() async {
     setState(() {});
+  }
+
+  _buildFocusMenuItems(BuildContext context, int index) {
+    return [
+      widget.subject.decks[index].description.isNotEmpty
+          ? FocusedMenuItem(
+              title: Text(widget.subject.decks[index].description, style: Theme.of(context).textTheme.caption),
+              onPressed: () => {},
+            )
+          : FocusedMenuItem(
+              title: Text(AppLocalizations.of(context)!.subject_description_empty,
+                  style: Theme.of(context).textTheme.caption),
+              onPressed: () {}),
+      FocusedMenuItem(
+        title: Text(AppLocalizations.of(context)!.open),
+        trailingIcon: const Icon(Icons.open_in_new),
+        onPressed: () => _navigateToCardsView(context, index),
+      ),
+      FocusedMenuItem(
+        title: Text(
+          AppLocalizations.of(context)!.delete,
+          style: const TextStyle(color: Colors.redAccent),
+        ),
+        trailingIcon: const Icon(
+          Icons.delete,
+          color: Colors.redAccent,
+        ),
+        onPressed: () => _deleteDeck(index),
+      ),
+    ];
   }
 
   @override
@@ -116,34 +143,7 @@ class _DeckViewState extends State<DeckView> {
               ),
               menuItemExtent: 45,
               menuOffset: 10.0,
-              menuItems: [
-                widget.subject.decks[index].description.isNotEmpty
-                    ? FocusedMenuItem(
-                  title: Text(widget.subject.decks[index].description,
-                      style: Theme.of(context).textTheme.caption),
-                  onPressed: () => {},
-                )
-                    : FocusedMenuItem(
-                    title: Text(AppLocalizations.of(context)!.subject_description_empty,
-                        style: Theme.of(context).textTheme.caption),
-                    onPressed: () {}),
-                FocusedMenuItem(
-                  title: Text(AppLocalizations.of(context)!.open),
-                  trailingIcon: const Icon(Icons.open_in_new),
-                  onPressed: () => _navigateToCardsView(context, index),
-                ),
-                FocusedMenuItem(
-                  title: Text(
-                    AppLocalizations.of(context)!.delete,
-                    style: TextStyle(color: Colors.redAccent),
-                  ),
-                  trailingIcon: const Icon(
-                    Icons.delete,
-                    color: Colors.redAccent,
-                  ),
-                  onPressed: () => _deleteDeck(index),
-                ),
-              ],
+              menuItems: _buildFocusMenuItems(context, index),
               onPressed: () {},
               child: DeckCard(
                 deck: widget.subject.decks[index],
@@ -159,13 +159,11 @@ class _DeckViewState extends State<DeckView> {
         label: Text(AppLocalizations.of(context)!.deck_add),
         icon: const Icon(Icons.add),
         heroTag: 'add',
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
         onPressed: () {
           showModalBottomSheet(
               context: context,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
               isDismissible: true,
               isScrollControlled: true,
               builder: (context) {
@@ -182,12 +180,12 @@ class _DeckViewState extends State<DeckView> {
 }
 
 class DeckCard extends StatelessWidget {
-  const DeckCard({Key? key, required this.deck, required this.onTap, required this.onStudy})
-      : super(key: key);
+  const DeckCard({Key? key, required this.deck, required this.onTap, required this.onStudy}) : super(key: key);
 
-  final Deck deck;
   final Function onTap;
   final Function onStudy;
+
+  final Deck deck;
 
   @override
   Widget build(BuildContext context) {
@@ -229,15 +227,14 @@ class DeckCard extends StatelessWidget {
 
 class DeckBottomSheet extends StatelessWidget {
   const DeckBottomSheet(
-      {Key? key,
-      required this.titleController,
-      required this.descriptionController,
-      this.onCreateDeck})
+      {Key? key, required this.titleController, required this.descriptionController, this.onCreateDeck})
       : super(key: key);
+
+  final Function? onCreateDeck;
 
   final TextEditingController titleController;
   final TextEditingController descriptionController;
-  final Function? onCreateDeck;
+
 
   @override
   Widget build(BuildContext context) {
@@ -273,7 +270,7 @@ class DeckBottomSheet extends StatelessWidget {
                 icon: const Icon(Icons.send),
               )
             ],
-          )
+          ),
         ],
       ),
     );

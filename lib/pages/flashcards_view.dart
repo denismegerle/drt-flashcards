@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:iternia/pages/flashcard_mod.dart';
-import 'package:iternia/pages/subject_mod.dart';
-import 'package:iternia/logic.dart';
-import 'package:iternia/common.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-// TODO standardize and cleanup
+import '../common.dart';
+import '../logic.dart';
+import 'flashcard_mod.dart';
+
 class FlashCardsView extends StatefulWidget {
   const FlashCardsView({Key? key, required this.title, required this.subject, required this.deck}) : super(key: key);
 
@@ -28,6 +27,44 @@ class _FlashCardsViewState extends State<FlashCardsView> {
   void initState() {
     isSelected = List.generate(widget.deck.cards.length, (index) => false);
     super.initState();
+  }
+
+  void _navigateToCardAdd(BuildContext context) async {
+    final FlashCard? result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => FlashCardMod(
+                title: AppLocalizations.of(context)!.card_add,
+                subject: widget.subject,
+              )),
+    );
+
+    if (result != null) {
+      setState(() {
+        widget.deck.cards.add(result);
+        isSelected = List.generate(widget.deck.cards.length, (index) => false);
+      });
+      _navigateToCardAdd(context);
+    }
+  }
+
+  void _navigateToCardEdit(BuildContext context, int index) async {
+    final FlashCard? result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FlashCardMod(
+          title: AppLocalizations.of(context)!.card_edit,
+          subject: widget.subject,
+          flashCard: widget.deck.cards[index],
+        ),
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        widget.deck.cards[index] = result;
+      });
+    }
   }
 
   void _selectCard(int index) {
@@ -98,47 +135,15 @@ class _FlashCardsViewState extends State<FlashCardsView> {
       ),
     );
   }
-
-  void _navigateToCardAdd(BuildContext context) async {
-    final FlashCard? result = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => FlashCardMod(title: AppLocalizations.of(context)!.card_add, subject: widget.subject,)),
-    );
-
-    if (result != null) {
-      setState(() {
-        widget.deck.cards.add(result);
-        isSelected = List.generate(widget.deck.cards.length, (index) => false);
-      });
-      _navigateToCardAdd(context);
-    }
-  }
-
-  void _navigateToCardEdit(BuildContext context, int index) async {
-    final FlashCard? result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => FlashCardMod(
-                title: AppLocalizations.of(context)!.card_edit,
-                subject: widget.subject,
-                flashCard: widget.deck.cards[index],
-              ),),
-    );
-
-    if (result != null) {
-      setState(() {
-        widget.deck.cards[index] = result;
-      });
-    }
-  }
 }
 
 class FlashCardView extends StatelessWidget {
   const FlashCardView({Key? key, required this.card, required this.onTap, required this.onLongPress}) : super(key: key);
 
-  final FlashCard card;
   final Function onTap;
   final Function onLongPress;
+
+  final FlashCard card;
 
   Widget _buildDueCircle(BuildContext context) {
     Duration dueTime = Duration(minutes: card.dueTime);

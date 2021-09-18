@@ -3,12 +3,12 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swipable/flutter_swipable.dart';
 
+import '../common.dart';
 import '../logic.dart';
 
 // TODO standardize and cleanup
 class SwipeLearning extends StatefulWidget {
-  const SwipeLearning({Key? key, required this.title, required this.subject, required this.cardList})
-      : super(key: key);
+  const SwipeLearning({Key? key, required this.title, required this.subject, required this.cardList}) : super(key: key);
 
   final String title;
   final Subject subject;
@@ -33,31 +33,28 @@ class _SwipeLearningState extends State<SwipeLearning> {
     }
   }
 
-  Widget _createStandardSplashCard(BuildContext context, FlashCard card) {
+  Widget _buildStandardSplashCard(BuildContext context, FlashCard card) {
     return SplashCard(
       /* key is just to force a new instance of SplashCard */
       key: Key(card.front),
       onSwipeRight: (details) => _nextCard(context, FlashCardSwipe.right),
       onSwipeLeft: (details) => _nextCard(context, FlashCardSwipe.left),
       onSwipeUp: (details) => _nextCard(context, FlashCardSwipe.up),
-      front: SplashCardContent(content: Text(card.front, style: Theme.of(context).textTheme.headline5?.copyWith(fontWeight: FontWeight.bold))),
-      back: SplashCardContent(content: Text(card.back, style: Theme.of(context).textTheme.headline5?.copyWith(fontWeight: FontWeight.bold))),
+      front: SplashCardContent(
+          content:
+              Text(card.front, style: Theme.of(context).textTheme.headline5?.copyWith(fontWeight: FontWeight.bold))),
+      back: SplashCardContent(
+          content:
+              Text(card.back, style: Theme.of(context).textTheme.headline5?.copyWith(fontWeight: FontWeight.bold))),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
+      appBar: MinimalistAppBar(
+        context: context,
         title: Text(widget.title),
-        titleTextStyle: Theme.of(context).textTheme.headline6,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: const IconThemeData(
-          color: Colors.black,
-        ),
       ),
       body: Column(
         children: [
@@ -66,8 +63,7 @@ class _SwipeLearningState extends State<SwipeLearning> {
             value: _learningProgress,
           ),
           Expanded(
-            child:
-                _createStandardSplashCard(context, widget.cardList[_currentCardIndex]),
+            child: _buildStandardSplashCard(context, widget.cardList[_currentCardIndex]),
           ),
         ],
       ),
@@ -77,19 +73,15 @@ class _SwipeLearningState extends State<SwipeLearning> {
 
 class SplashCard extends StatelessWidget {
   const SplashCard(
-      {Key? key,
-      required this.front,
-      required this.back,
-      this.onSwipeLeft,
-      this.onSwipeRight,
-      this.onSwipeUp})
+      {Key? key, required this.front, required this.back, this.onSwipeLeft, this.onSwipeRight, this.onSwipeUp})
       : super(key: key);
 
-  final SplashCardContent front;
-  final SplashCardContent back;
   final void Function(Offset finalPosition)? onSwipeLeft;
   final void Function(Offset finalPosition)? onSwipeRight;
   final void Function(Offset finalPosition)? onSwipeUp;
+
+  final SplashCardContent front;
+  final SplashCardContent back;
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +121,10 @@ class SplashCardContent extends StatelessWidget {
         ),
         elevation: 5.0,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0,),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 20.0,
+            vertical: 15.0,
+          ),
           child: content,
         ),
       ),

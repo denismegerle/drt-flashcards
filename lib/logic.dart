@@ -1,12 +1,12 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
-import 'dart:math';
+import 'constants.dart' as constants;
 
 enum FlashCardOrder { none, random }
 enum FlashCardSwipe { left, right, up }
 
-// TODO standardize and cleanup
 class Subject {
   String name;
   String description;
@@ -18,9 +18,6 @@ class Subject {
   int initialSpreadTime;
   RangeValues spreadFactorRange;
   double initialSpreadFactor;
-
-  static const sampleImageLink =
-      'https://www.world-insight.de/fileadmin/data/Headerbilder/landingpages/Japan_1440x600.jpg';
 
   int get amountOfDecks {
     return decks.length;
@@ -42,7 +39,7 @@ class Subject {
     this.name = '',
     this.description = '',
     this.decks = const <Deck>[],
-    this.imageLink = sampleImageLink,
+    this.imageLink = constants.sampleImageLink,
     this.easyBonus = true,
     this.learningOrder = FlashCardOrder.none,
     this.initialSpreadTime = 10, // in minutes
@@ -75,6 +72,7 @@ class Deck {
   });
 }
 
+// TODO flashcard shit
 class FlashCard {
   String front;
   String back;
@@ -100,7 +98,6 @@ class FlashCard {
     return Random().nextDouble(); // prob dependend on spread time?
   }
 
-
   FlashCard({
     this.front = '',
     this.back = '',
@@ -109,7 +106,13 @@ class FlashCard {
     this.spreadFactor = 2.5,
   });
 
-  FlashCard clone({String? front, String? back, int? lastReviewTime, int? spreadTime, double? spreadFactor,}) {
+  FlashCard clone({
+    String? front,
+    String? back,
+    int? lastReviewTime,
+    int? spreadTime,
+    double? spreadFactor,
+  }) {
     return FlashCard(
       front: front ?? this.front,
       back: back ?? this.back,

@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-import '../constants.dart' as Constants;
 import '../common.dart';
-import '../logic.dart';
-import 'deck_view.dart';
-import 'subject_mod.dart';
+import '../constants.dart' as constants;
 
-// TODO standardize and cleanup
 class ImageSearch extends StatefulWidget {
   const ImageSearch({
     Key? key,
@@ -34,14 +29,31 @@ class _ImageSearchState extends State<ImageSearch> {
     super.dispose();
   }
 
+  void _navigateReturnImageLink(BuildContext context, int linkIndex) {
+    Navigator.pop(context, queryResults[linkIndex]);
+  }
+
   void _applyNewQuery(String query) async {
     FocusScope.of(context).unfocus();
-    queryResults = await loadImagesFromGoogleTask(query);
+    queryResults = await loadImagesFromGoogleTask(context, query);
     setState(() {});
   }
 
-  void _navigateReturnImageLink(BuildContext context, int linkIndex) {
-    Navigator.pop(context, queryResults[linkIndex]);
+  _buildSearchBar(BuildContext context) {
+    return TextField(
+      controller: _controller,
+      cursorColor: Colors.white,
+      decoration: InputDecoration(
+        hintText: AppLocalizations.of(context)!.search,
+        border: InputBorder.none,
+        suffixIcon: IconButton(
+          icon: const Icon(Icons.search),
+          onPressed: () => _applyNewQuery(_controller.value.text),
+        ),
+      ),
+      onSubmitted: (query) => _applyNewQuery(query),
+      style: Theme.of(context).textTheme.headline6,
+    );
   }
 
   @override
@@ -49,45 +61,31 @@ class _ImageSearchState extends State<ImageSearch> {
     return Scaffold(
       appBar: MinimalistAppBar(
         context: context,
-        title: TextField(
-          controller: _controller,
-          cursorColor: Colors.white,
-          decoration: InputDecoration(
-            hintText: AppLocalizations.of(context)!.search,
-            border: InputBorder.none,
-            suffixIcon: IconButton(
-              icon: const Icon(Icons.search),
-              onPressed: () => _applyNewQuery(_controller.value.text),
-            ),
-          ),
-          onSubmitted: (query) => _applyNewQuery(query),
-          style: Theme.of(context).textTheme.headline6,
-        ),
+        title: _buildSearchBar(context),
       ),
       body: GridView.builder(
-          itemCount: queryResults.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-          ),
-          itemBuilder: (context, index) {
-            return InkWell(
-              onTap: () => _navigateReturnImageLink(context, index),
-              child: Image.network(
-                queryResults[index],
-                fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) =>
-                    (loadingProgress == null)
-                        ? child
-                        : const CircularProgressIndicator(),
-                errorBuilder: (context, error, stackTrace) {
-                  return Image.network(
-                    Constants.errorImageLink,
-                    fit: BoxFit.cover,
-                  );
-                },
-              ),
-            );
-          }),
+        itemCount: queryResults.length,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+        ),
+        itemBuilder: (context, index) {
+          return InkWell(
+            onTap: () => _navigateReturnImageLink(context, index),
+            child: Image.network(
+              queryResults[index],
+              fit: BoxFit.cover,
+              loadingBuilder: (context, child, loadingProgress) =>
+                  (loadingProgress == null) ? child : const CircularProgressIndicator(),
+              errorBuilder: (context, error, stackTrace) {
+                return Image.network(
+                  constants.errorImageLink,
+                  fit: BoxFit.cover,
+                );
+              },
+            ),
+          );
+        },
+      ),
     );
   }
 }

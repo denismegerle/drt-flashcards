@@ -1,32 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
+import 'constants.dart' as constants;
 import 'logic.dart';
 import 'pages/subject_view.dart';
-import 'pages/subject_mod.dart';
-import 'pages/swipe_learning.dart';
-import 'pages/flashcard_mod.dart';
-import 'pages/deck_view.dart';
-import 'pages/image_search.dart';
 import 'themes.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'constants.dart' as constants;
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 /*
   TODO:
-  - refactor all smaller widgets to take onX methods and implement these only in the main state!
-  - refactor all navigation between screens to _navigate* methods
   - subject cards in grid view packen und die iwie sizemäßig anpassen
+  - save data to sqllite (or simple text file...)
 
   - FINISHING TOUCHES: STANDARDIZE, MAKE ALL COMMAS PROPERLY, CLEANUP IMPORTS IN ALL FILES
  */
 class MyApp extends StatelessWidget {
-  MyApp({Key? key}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
 
-  List<Subject> data = _generateSampleData();
+  static final List<Subject> data = _generateSampleData();
 
   @override
   Widget build(BuildContext context) {

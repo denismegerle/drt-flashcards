@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import '../common.dart';
 import '../logic.dart';
 import 'image_search.dart';
 
-// TODO standardize and cleanup
 class SubjectMod extends StatefulWidget {
   const SubjectMod({Key? key, required this.title, required this.subject}) : super(key: key);
 
@@ -58,7 +58,9 @@ class _SubjectModState extends State<SubjectMod> {
               child: TextField(
                 autofocus: true,
                 controller: _controller,
-                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.subject_settings_initial_spread_time, hintText: AppLocalizations.of(context)!.subject_settings_initial_spread_time_hint),
+                decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.subject_settings_initial_spread_time,
+                    hintText: AppLocalizations.of(context)!.subject_settings_initial_spread_time_hint),
               ),
             ),
           ],
@@ -137,7 +139,7 @@ class _SubjectModState extends State<SubjectMod> {
       alignment: Alignment.centerLeft,
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Text(
-        'Advanced',
+        AppLocalizations.of(context)!.subject_settings_advanced,
         textAlign: TextAlign.left,
         style: Theme.of(context)
             .textTheme
@@ -231,7 +233,9 @@ class _SubjectModState extends State<SubjectMod> {
             ),
           ),
           ListTile(
-            subtitle: Text(AppLocalizations.of(context)!.subject_settings_spreading_results('0 1 2 3 4 timediff')), // TODO calc this here
+            // TODO: calculate this crap here...
+            subtitle: Text(AppLocalizations.of(context)!
+                .subject_settings_spreading_results('0 1 2 3 4 timediff')), // TODO calc this here
           ),
         ],
       ),
@@ -258,16 +262,15 @@ class _SubjectModState extends State<SubjectMod> {
         ],
       ),
       body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildTopImage(context),
-              _buildTitleTextField(context),
-              _buildAdvancedSettingsHeading(context),
-              _buildAdvancedSettings(context),
-            ],
-          ),
-
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _buildTopImage(context),
+            _buildTitleTextField(context),
+            _buildAdvancedSettingsHeading(context),
+            _buildAdvancedSettings(context),
+          ],
+        ),
       ),
     );
   }

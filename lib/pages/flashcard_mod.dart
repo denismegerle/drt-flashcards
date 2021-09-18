@@ -1,12 +1,11 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import '../logic.dart';
-import '../common.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-// TODO standardize and cleanup
+import '../common.dart';
+import '../logic.dart';
+
 class FlashCardMod extends StatefulWidget {
-  FlashCardMod({Key? key, required this.title, required this.subject, this.flashCard}) : super(key: key);
+  const FlashCardMod({Key? key, required this.title, required this.subject, this.flashCard}) : super(key: key);
 
   final String title;
   final Subject subject;
@@ -52,19 +51,15 @@ class _FlashCardModState extends State<FlashCardMod> {
           context: context,
           bottom: TabBar(
             tabs: [
-              Tab(
-                  icon: Text(AppLocalizations.of(context)!.card_front,
-                      style: Theme.of(context).textTheme.headline6)),
-              Tab(
-                  icon: Text(AppLocalizations.of(context)!.card_back,
-                      style: Theme.of(context).textTheme.headline6)),
+              Tab(icon: Text(AppLocalizations.of(context)!.card_front, style: Theme.of(context).textTheme.headline6)),
+              Tab(icon: Text(AppLocalizations.of(context)!.card_back, style: Theme.of(context).textTheme.headline6)),
             ],
           ),
           actions: [
             Padding(
-              padding: EdgeInsets.only(right: 10.0),
+              padding: const EdgeInsets.only(right: 10.0),
               child: IconButton(
-                icon: Icon(Icons.check),
+                icon: const Icon(Icons.check),
                 onPressed: () {
                   newCard.front = _frontController.value.text;
                   newCard.back = _backController.value.text;
@@ -79,15 +74,11 @@ class _FlashCardModState extends State<FlashCardMod> {
             Column(
               children: [
                 Padding(
-                  padding: EdgeInsets.all(10.0),
+                  padding: const EdgeInsets.all(10.0),
                   child: TextField(
                     controller: _frontController,
-                    decoration:
-                        InputDecoration.collapsed(hintText: AppLocalizations.of(context)!.card_front_filler),
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline5
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                    decoration: InputDecoration.collapsed(hintText: AppLocalizations.of(context)!.card_front_filler),
+                    style: Theme.of(context).textTheme.headline5?.copyWith(fontWeight: FontWeight.bold),
                     onSubmitted: (String value) {},
                   ),
                 ),
@@ -96,15 +87,11 @@ class _FlashCardModState extends State<FlashCardMod> {
             Column(
               children: [
                 Padding(
-                  padding: EdgeInsets.all(10.0),
+                  padding: const EdgeInsets.all(10.0),
                   child: TextField(
                     controller: _backController,
-                    decoration:
-                    InputDecoration.collapsed(hintText: AppLocalizations.of(context)!.card_back_filler),
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline5
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                    decoration: InputDecoration.collapsed(hintText: AppLocalizations.of(context)!.card_back_filler),
+                    style: Theme.of(context).textTheme.headline5?.copyWith(fontWeight: FontWeight.bold),
                     onSubmitted: (String value) {},
                   ),
                 ),
