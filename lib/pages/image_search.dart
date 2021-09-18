@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../constants.dart' as Constants;
 import '../common.dart';
 import '../logic.dart';
 import 'deck_view.dart';
@@ -19,9 +21,6 @@ class ImageSearch extends StatefulWidget {
 class _ImageSearchState extends State<ImageSearch> {
   late TextEditingController _controller;
   List<String> queryResults = [];
-
-  static const String errorImageLink =
-      'https://cdn.pixabay.com/photo/2013/07/12/12/40/abort-146096_960_720.png';
 
   @override
   void initState() {
@@ -54,7 +53,7 @@ class _ImageSearchState extends State<ImageSearch> {
           controller: _controller,
           cursorColor: Colors.white,
           decoration: InputDecoration(
-            hintText: " Search...",
+            hintText: AppLocalizations.of(context)!.search,
             border: InputBorder.none,
             suffixIcon: IconButton(
               icon: const Icon(Icons.search),
@@ -82,7 +81,7 @@ class _ImageSearchState extends State<ImageSearch> {
                         : const CircularProgressIndicator(),
                 errorBuilder: (context, error, stackTrace) {
                   return Image.network(
-                    errorImageLink,
+                    Constants.errorImageLink,
                     fit: BoxFit.cover,
                   );
                 },

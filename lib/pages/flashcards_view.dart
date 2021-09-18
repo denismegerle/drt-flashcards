@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:iternia/pages/card_add.dart';
+import 'package:iternia/pages/flashcard_mod.dart';
 import 'package:iternia/pages/subject_mod.dart';
 import 'package:iternia/logic.dart';
 import 'package:iternia/common.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 // TODO standardize and cleanup
-class CardsView extends StatefulWidget {
-  const CardsView({Key? key, required this.title, required this.subject, required this.deck}) : super(key: key);
+class FlashCardsView extends StatefulWidget {
+  const FlashCardsView({Key? key, required this.title, required this.subject, required this.deck}) : super(key: key);
 
   final String title;
   final Subject subject;
   final Deck deck;
 
   @override
-  State<CardsView> createState() => _CardsViewState();
+  State<FlashCardsView> createState() => _FlashCardsViewState();
 }
 
-class _CardsViewState extends State<CardsView> {
+class _FlashCardsViewState extends State<FlashCardsView> {
   late List<bool> isSelected;
 
   bool get inSelection {
@@ -79,7 +80,7 @@ class _CardsViewState extends State<CardsView> {
           itemCount: widget.deck.cards.length,
           itemBuilder: (context, index) => Container(
             decoration: isSelected[index] ? BoxDecoration(color: Colors.grey[300]) : const BoxDecoration(),
-            child: CardView(
+            child: FlashCardView(
               card: widget.deck.cards[index],
               onTap: () => inSelection ? _selectCard(index) : _navigateToCardEdit(context, index),
               onLongPress: () => _selectCard(index),
@@ -89,7 +90,7 @@ class _CardsViewState extends State<CardsView> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton.extended(
-        label: const Text('Add card'),
+        label: Text(AppLocalizations.of(context)!.card_add),
         icon: const Icon(Icons.add),
         heroTag: 'add',
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
@@ -101,7 +102,7 @@ class _CardsViewState extends State<CardsView> {
   void _navigateToCardAdd(BuildContext context) async {
     final FlashCard? result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => CardAdd(title: 'Add card', subject: widget.subject,)),
+      MaterialPageRoute(builder: (context) => FlashCardMod(title: AppLocalizations.of(context)!.card_add, subject: widget.subject,)),
     );
 
     if (result != null) {
@@ -117,11 +118,11 @@ class _CardsViewState extends State<CardsView> {
     final FlashCard? result = await Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => CardAdd(
-                title: 'Edit card',
+          builder: (context) => FlashCardMod(
+                title: AppLocalizations.of(context)!.card_edit,
                 subject: widget.subject,
                 flashCard: widget.deck.cards[index],
-              )),
+              ),),
     );
 
     if (result != null) {
@@ -132,8 +133,8 @@ class _CardsViewState extends State<CardsView> {
   }
 }
 
-class CardView extends StatelessWidget {
-  const CardView({Key? key, required this.card, required this.onTap, required this.onLongPress}) : super(key: key);
+class FlashCardView extends StatelessWidget {
+  const FlashCardView({Key? key, required this.card, required this.onTap, required this.onLongPress}) : super(key: key);
 
   final FlashCard card;
   final Function onTap;
@@ -163,7 +164,6 @@ class CardView extends StatelessWidget {
         color:
             HSVColor.lerp(HSVColor.fromColor(Colors.red), HSVColor.fromColor(Colors.green), card.progress)!.toColor(),
         backgroundColor: Colors.grey.withOpacity(0.3),
-        semanticsLabel: 'Linear progress indicator',
       ),
     );
   }

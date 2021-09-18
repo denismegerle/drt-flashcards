@@ -1,0 +1,66 @@
+{
+  "@@locale": "en",
+
+
+  "study": "Study",
+  "open": "Open",
+  "edit": "Edit",
+  "share": "Share",
+  "delete": "Delete",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "search": "Search",
+
+
+  "subjects": "Subjects",
+  "subject_add": "Add subject",
+  "subject_edit": "Edit subject",
+
+  "subject_name_filler": "Subject name",
+  "subject_description_filler": "Subject description",
+  "subject_description_empty": "Description empty...",
+
+  "subject_settings_changeimage": "Change image",
+  "subject_settings_advanced": "Advanced",
+  "subject_settings_enable_easy": "Enable easy bonus",
+  "subject_settings_enable_easy_description": "Spread increase for simple flashcards",
+  "subject_settings_flashcard_order": "FlashCard order",
+  "subject_settings_initial_spread_time": "Initial spread time (in min)",
+  "subject_settings_initial_spread_time_hint": "eg. 1440",
+  "subject_settings_spread_factor_range": "Spread factor range",
+  "subject_settings_initial_spread_factor": "Initial spread factor",
+  "subject_settings_spreading_results": "Spreading results in pattern:\n{pattern}",
+  "@subject_settings_spreading_results": {
+    "placeholders": {
+      "pattern": {
+        "type": "String"
+      }
+    }
+  },
+
+
+  "deck_add": "Add deck",
+
+  "deck_name_filler": "Deck name",
+  "deck_description_filler": "Deck description",
+  "deck_description_empty": "Description empty...",
+
+
+  "card_add": "Add card",
+  "card_edit": "Edit card",
+  "card_front": "Front",
+  "card_back": "Back",
+  "card_front_filler": "Front side content",
+  "card_back_filler": "Back side content",
+
+
+  "swipelearning_heading": "Learning {heading}",
+  "@swipelearning_heading": {
+    "placeholders": {
+      "heading": {
+        "type": "String"
+      }
+    }
+  },
+  "swipelearning_nocards": "Nothing to study"
+}

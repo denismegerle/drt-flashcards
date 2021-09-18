@@ -1,0 +1,52 @@
+{
+  "@@locale": "de",
+
+
+  "study": "Lernen",
+  "open": "Öffnen",
+  "edit": "Bearbeiten",
+  "share": "Teilen",
+  "delete": "Entfernen",
+  "cancel": "Abbrechen",
+  "confirm": "Bestätigen",
+  "search": "Suche",
+
+
+  "subjects": "Themen",
+  "subject_add": "Thema hinzufügen",
+  "subject_edit": "Thema bearbeiten",
+
+  "subject_name_filler": "Themaname",
+  "subject_description_filler": "Themabeschreibung",
+  "subject_description_empty": "Beschreibung leer...",
+
+  "subject_settings_changeimage": "Bild ändern",
+  "subject_settings_advanced": "Erweitert",
+  "subject_settings_enable_easy": "Easy Bonus aktivieren",
+  "subject_settings_enable_easy_description": "Lernzeitspannenerhöhung für einfache Karten",
+  "subject_settings_flashcard_order": "FlashCard Reihenfolge",
+  "subject_settings_initial_spread_time": "Initiale Lernzeitspanne (in min)",
+  "subject_settings_initial_spread_time_hint": "bspw. 1440",
+  "subject_settings_spread_factor_range": "Bereich des Lernzeitspannenfaktor",
+  "subject_settings_initial_spread_factor": "Lernzeitspannenfaktor",
+  "subject_settings_spreading_results": "Lernzeitspannen ergeben Muster:\n{pattern}",
+
+
+  "deck_add": "Stapel hinzufügen",
+
+  "deck_name_filler": "Stapelname",
+  "deck_description_filler": "Stapelbeschreibung",
+  "deck_description_empty": "Beschreibung leer...",
+
+
+  "card_add": "Karte hinzufügen",
+  "card_edit": "Karte bearbeiten",
+  "card_front": "Vorne",
+  "card_back": "Hinten",
+  "card_front_filler": "Inhalt Frontseite",
+  "card_back_filler": "Inhalt Rückseite",
+
+
+  "swipelearning_heading": "Lerne {heading}",
+  "swipelearning_nocards": "Nichts zu lernen!"
+}

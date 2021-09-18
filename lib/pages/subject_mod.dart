@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../common.dart';
 import '../logic.dart';
 import 'image_search.dart';
@@ -18,8 +18,6 @@ class SubjectMod extends StatefulWidget {
 class _SubjectModState extends State<SubjectMod> {
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
-
-  static const changeImageButtonText = 'Change Image';
 
   @override
   void initState() {
@@ -60,19 +58,19 @@ class _SubjectModState extends State<SubjectMod> {
               child: TextField(
                 autofocus: true,
                 controller: _controller,
-                decoration: const InputDecoration(labelText: 'Initial Spread Time (in minutes)', hintText: 'eg. 1440'),
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.subject_settings_initial_spread_time, hintText: AppLocalizations.of(context)!.subject_settings_initial_spread_time_hint),
               ),
             ),
           ],
         ),
         actions: [
           TextButton(
-              child: const Text('CANCEL'),
+              child: Text(AppLocalizations.of(context)!.cancel),
               onPressed: () {
                 Navigator.pop(context);
               }),
           TextButton(
-              child: const Text('CONFIRM'),
+              child: Text(AppLocalizations.of(context)!.confirm),
               onPressed: () {
                 Navigator.pop(context, _controller.text);
               }),
@@ -107,7 +105,7 @@ class _SubjectModState extends State<SubjectMod> {
               ),
             ),
             onPressed: () => _navigateToChangeImageLink(context),
-            child: const Text(changeImageButtonText),
+            child: Text(AppLocalizations.of(context)!.subject_settings_changeimage),
           ),
         ),
       ],
@@ -121,12 +119,12 @@ class _SubjectModState extends State<SubjectMod> {
         children: [
           TextField(
             controller: _titleController,
-            decoration: const InputDecoration(hintText: 'title...'),
+            decoration: InputDecoration(hintText: AppLocalizations.of(context)!.subject_name_filler),
             style: Theme.of(context).textTheme.headline5?.copyWith(fontWeight: FontWeight.bold),
           ),
           TextField(
             controller: _descriptionController,
-            decoration: const InputDecoration.collapsed(hintText: 'description...'),
+            decoration: InputDecoration.collapsed(hintText: AppLocalizations.of(context)!.subject_description_filler),
             style: Theme.of(context).textTheme.caption?.copyWith(fontWeight: FontWeight.bold),
           )
         ],
@@ -159,8 +157,8 @@ class _SubjectModState extends State<SubjectMod> {
         physics: const ClampingScrollPhysics(),
         children: [
           ListTile(
-            title: const Text('Enable Easy-Bonus'),
-            subtitle: const Text('Spread increase for simple flashcards'),
+            title: Text(AppLocalizations.of(context)!.subject_settings_enable_easy),
+            subtitle: Text(AppLocalizations.of(context)!.subject_settings_enable_easy_description),
             trailing: Switch(
                 value: widget.subject.easyBonus,
                 onChanged: (value) {
@@ -170,7 +168,7 @@ class _SubjectModState extends State<SubjectMod> {
                 }),
           ),
           ListTile(
-            title: const Text('FlashCard Order'),
+            title: Text(AppLocalizations.of(context)!.subject_settings_flashcard_order),
             subtitle: Text(widget.subject.learningOrder.toString()),
             trailing: PopupMenuButton<FlashCardOrder>(
               itemBuilder: (context) {
@@ -193,12 +191,12 @@ class _SubjectModState extends State<SubjectMod> {
             ),
           ),
           ListTile(
-            title: const Text('Initial Spread Time (in min)'),
+            title: Text(AppLocalizations.of(context)!.subject_settings_initial_spread_time),
             subtitle: Text('${widget.subject.initialSpreadTime}'),
             onTap: () => _navigateToSpreadTimeEdit(context),
           ),
           ListTile(
-            title: const Text('Spread Factor Range'),
+            title: Text(AppLocalizations.of(context)!.subject_settings_spread_factor_range),
             subtitle: RangeSlider(
               values: widget.subject.spreadFactorRange,
               min: 1.0,
@@ -217,7 +215,7 @@ class _SubjectModState extends State<SubjectMod> {
             ),
           ),
           ListTile(
-            title: const Text('Initial Spread Factor'),
+            title: Text(AppLocalizations.of(context)!.subject_settings_initial_spread_factor),
             subtitle: Slider(
               value: widget.subject.initialSpreadFactor,
               min: widget.subject.spreadFactorRange.start,
@@ -233,7 +231,7 @@ class _SubjectModState extends State<SubjectMod> {
             ),
           ),
           ListTile(
-            subtitle: const Text('Spreading results in\n 0 1 2 3 4 timediff'), // TODO calc this here
+            subtitle: Text(AppLocalizations.of(context)!.subject_settings_spreading_results('0 1 2 3 4 timediff')), // TODO calc this here
           ),
         ],
       ),

@@ -3,10 +3,13 @@ import 'logic.dart';
 import 'pages/subject_view.dart';
 import 'pages/subject_mod.dart';
 import 'pages/swipe_learning.dart';
-import 'pages/card_add.dart';
+import 'pages/flashcard_mod.dart';
 import 'pages/deck_view.dart';
 import 'pages/image_search.dart';
 import 'themes.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'constants.dart' as constants;
 
 void main() {
   runApp(MyApp());
@@ -14,14 +17,9 @@ void main() {
 
 /*
   TODO:
-  - edit card add to also be able to edit (take in card, if null then add, if card then edit)
-  - edit subject add to also be able to edit subjects, same idea as in card add
-  - rename cards view and everything in there to flashcard view etc
   - refactor all smaller widgets to take onX methods and implement these only in the main state!
-  - refactor names of card_add to smth add/edit represent, same with subject add
-  - think about removing subject add view and only use bottom sheet to add cards, can still take img technically
   - refactor all navigation between screens to _navigate* methods
-
+  - subject cards in grid view packen und die iwie sizemäßig anpassen
 
   - FINISHING TOUCHES: STANDARDIZE, MAKE ALL COMMAS PROPERLY, CLEANUP IMPORTS IN ALL FILES
  */
@@ -33,11 +31,20 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: constants.appTitle,
       theme: cleanTheme,
       darkTheme: cleanThemeDark,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en', ''),
+        Locale('de', ''),
+      ],
       home: SubjectView(
-        title: 'Subjects',
         subjects: data,
       ),
     );

@@ -2,20 +2,21 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../logic.dart';
 import '../common.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 // TODO standardize and cleanup
-class CardAdd extends StatefulWidget {
-  CardAdd({Key? key, required this.title, required this.subject, this.flashCard}) : super(key: key);
+class FlashCardMod extends StatefulWidget {
+  FlashCardMod({Key? key, required this.title, required this.subject, this.flashCard}) : super(key: key);
 
   final String title;
   final Subject subject;
   final FlashCard? flashCard;
 
   @override
-  State<CardAdd> createState() => _CardAddState();
+  State<FlashCardMod> createState() => _FlashCardModState();
 }
 
-class _CardAddState extends State<CardAdd> {
+class _FlashCardModState extends State<FlashCardMod> {
   late TextEditingController _frontController;
   late TextEditingController _backController;
   late FlashCard newCard;
@@ -47,17 +48,15 @@ class _CardAddState extends State<CardAdd> {
       length: 2,
       child: Scaffold(
         appBar: MinimalistAppBar(
-          // Here we take the value from the MyHomePage object that was created by
-          // the App.build method, and use it to set our appbar title.
           title: Text(widget.title),
           context: context,
           bottom: TabBar(
             tabs: [
               Tab(
-                  icon: Text('Front',
+                  icon: Text(AppLocalizations.of(context)!.card_front,
                       style: Theme.of(context).textTheme.headline6)),
               Tab(
-                  icon: Text('Back',
+                  icon: Text(AppLocalizations.of(context)!.card_back,
                       style: Theme.of(context).textTheme.headline6)),
             ],
           ),
@@ -84,7 +83,7 @@ class _CardAddState extends State<CardAdd> {
                   child: TextField(
                     controller: _frontController,
                     decoration:
-                        new InputDecoration.collapsed(hintText: 'front side content ...'),
+                        InputDecoration.collapsed(hintText: AppLocalizations.of(context)!.card_front_filler),
                     style: Theme.of(context)
                         .textTheme
                         .headline5
@@ -101,7 +100,7 @@ class _CardAddState extends State<CardAdd> {
                   child: TextField(
                     controller: _backController,
                     decoration:
-                    new InputDecoration.collapsed(hintText: 'back side content ...'),
+                    InputDecoration.collapsed(hintText: AppLocalizations.of(context)!.card_back_filler),
                     style: Theme.of(context)
                         .textTheme
                         .headline5

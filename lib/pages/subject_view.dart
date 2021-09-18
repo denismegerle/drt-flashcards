@@ -1,26 +1,24 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:focused_menu/focused_menu.dart';
 import 'package:focused_menu/modals.dart';
-import 'swipe_learning.dart';
 
 import '../common.dart';
-import '../logic.dart';
 import '../constants.dart' as constants;
+import '../logic.dart';
 import 'deck_view.dart';
 import 'subject_mod.dart';
+import 'swipe_learning.dart';
 
-// TODO standardize and cleanup
 
 class SubjectView extends StatefulWidget {
   const SubjectView({
     Key? key,
-    required this.title,
     required this.subjects,
   }) : super(key: key);
 
-  final String title;
   final List<Subject> subjects;
 
   @override
@@ -50,7 +48,7 @@ class _SubjectViewState extends State<SubjectView> {
       context,
       MaterialPageRoute(
         builder: (context) => SubjectMod(
-          title: 'Add subject',
+          title: AppLocalizations.of(context)!.subject_add,
           subject: Subject(name: _titleController.value.text, description: _descriptionController.value.text),
         ),
       ),
@@ -82,7 +80,7 @@ class _SubjectViewState extends State<SubjectView> {
       context,
       MaterialPageRoute(
         builder: (context) => SubjectMod(
-          title: 'Edit subject',
+          title: AppLocalizations.of(context)!.subject_edit,
           subject: widget.subjects[index],
         ),
       ),
@@ -95,7 +93,7 @@ class _SubjectViewState extends State<SubjectView> {
     List<FlashCard> dueCards = widget.subjects[index].dueCardList;
 
     if (dueCards.isEmpty) {
-      showSimpleSnackbarNotification(context, 'Nothing to study');
+      showSimpleSnackbarNotification(context, AppLocalizations.of(context)!.swipelearning_nocards);
       return;
     }
 
@@ -103,7 +101,7 @@ class _SubjectViewState extends State<SubjectView> {
       context,
       MaterialPageRoute(
         builder: (context) => SwipeLearning(
-          title: 'Learning ${widget.subjects[index].name}',
+          title: AppLocalizations.of(context)!.swipelearning_heading(widget.subjects[index].name),
           subject: widget.subjects[index],
           cardList: dueCards,
         ),
@@ -127,6 +125,87 @@ class _SubjectViewState extends State<SubjectView> {
     setState(() {});
   }
 
+  _buildFocusMenuItems(BuildContext context, int index) {
+    return [
+      widget.subjects[index].description.isNotEmpty
+          ? FocusedMenuItem(
+        title: Text(widget.subjects[index].description, style: Theme.of(context).textTheme.caption),
+        onPressed: () => {},
+      )
+          : FocusedMenuItem(
+          title: Text(AppLocalizations.of(context)!.subject_description_empty, style: Theme.of(context).textTheme.caption),
+          onPressed: () {}),
+      FocusedMenuItem(
+        title: Text(AppLocalizations.of(context)!.open),
+        trailingIcon: const Icon(Icons.open_in_new),
+        onPressed: () => _navigateToDeckView(context, index),
+      ),
+      FocusedMenuItem(
+        title: Text(AppLocalizations.of(context)!.edit),
+        trailingIcon: const Icon(Icons.edit),
+        onPressed: () => _navigateToSubjectEdit(context, index),
+      ),
+      FocusedMenuItem(
+        title: Text(AppLocalizations.of(context)!.share),
+        trailingIcon: const Icon(Icons.share),
+        onPressed: () {
+          // TODO need to implement export feature
+          const snackBar = SnackBar(
+            content: Text('Export not yet implemented'),
+          );
+
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        },
+      ),
+      FocusedMenuItem(
+        title: Text(
+          AppLocalizations.of(context)!.delete,
+          style: const TextStyle(color: Colors.redAccent),
+        ),
+        trailingIcon: const Icon(
+          Icons.delete,
+          color: Colors.redAccent,
+        ),
+        onPressed: () => _deleteSubject(index),
+      ),
+    ];
+  }
+
+  _buildBottomSheet(BuildContext context) {
+    return NotificationListener<DraggableScrollableNotification>(
+      onNotification: (notification) {
+        if (notification.extent >= 0.6) {
+          _navigateToSubjectCreation(context);
+        }
+        return true;
+      },
+      child: Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.4,
+          minChildSize: 0.4,
+          maxChildSize: 0.6,
+          builder: (context, scrollController) => ListView(
+            controller: scrollController,
+            children: [
+              SubjectBottomSheet(
+                titleController: _titleController,
+                descriptionController: _descriptionController,
+                onCreateSubject: () {
+                  _createSubject();
+                  Navigator.pop(context);
+                  _titleController.clear();
+                  _descriptionController.clear();
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -134,14 +213,15 @@ class _SubjectViewState extends State<SubjectView> {
         context: context,
         title: Row(
           children: [
-            Text(widget.title),
+            Text(AppLocalizations.of(context)!.subjects),
             const Spacer(),
             TextButton(
-                onPressed: () {  },
-                child: Text(
-              '𝕚𝕥𝕖𝕣𝕟𝕚𝕒',
-              style: Theme.of(context).textTheme.headline5,
-            ),),
+              onPressed: () {},
+              child: Text(
+                constants.appLogoTitle,
+                style: Theme.of(context).textTheme.headline5,
+              ),
+            ),
           ],
         ),
       ),
@@ -160,49 +240,7 @@ class _SubjectViewState extends State<SubjectView> {
               ),
               menuItemExtent: 45,
               menuOffset: 10.0,
-              menuItems: [
-                widget.subjects[index].description.isNotEmpty
-                    ? FocusedMenuItem(
-                        title: Text(widget.subjects[index].description, style: Theme.of(context).textTheme.caption),
-                        onPressed: () => {},
-                      )
-                    : FocusedMenuItem(
-                        title: Text('description empty...', style: Theme.of(context).textTheme.caption),
-                        onPressed: () {}),
-                FocusedMenuItem(
-                  title: const Text("Open"),
-                  trailingIcon: const Icon(Icons.open_in_new),
-                  onPressed: () => _navigateToDeckView(context, index),
-                ),
-                FocusedMenuItem(
-                  title: const Text("Edit"),
-                  trailingIcon: const Icon(Icons.edit),
-                  onPressed: () => _navigateToSubjectEdit(context, index),
-                ),
-                FocusedMenuItem(
-                  title: const Text("Share"),
-                  trailingIcon: const Icon(Icons.share),
-                  onPressed: () {
-                    // TODO need to implement export feature
-                    const snackBar = SnackBar(
-                      content: Text('Export not yet implemented'),
-                    );
-
-                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                  },
-                ),
-                FocusedMenuItem(
-                  title: const Text(
-                    "Delete",
-                    style: TextStyle(color: Colors.redAccent),
-                  ),
-                  trailingIcon: const Icon(
-                    Icons.delete,
-                    color: Colors.redAccent,
-                  ),
-                  onPressed: () => _deleteSubject(index),
-                ),
-              ],
+              menuItems: _buildFocusMenuItems(context, index),
               onPressed: () {},
               child: SubjectCard(
                 subject: widget.subjects[index],
@@ -215,7 +253,7 @@ class _SubjectViewState extends State<SubjectView> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton.extended(
-        label: const Text('Add subject'),
+        label: Text(AppLocalizations.of(context)!.subject_add),
         icon: const Icon(Icons.add),
         heroTag: 'add',
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
@@ -225,40 +263,7 @@ class _SubjectViewState extends State<SubjectView> {
           isDismissible: true,
           isScrollControlled: true,
           enableDrag: true,
-          builder: (context) {
-            return NotificationListener<DraggableScrollableNotification>(
-              onNotification: (notification) {
-                if (notification.extent >= 0.6) {
-                  _navigateToSubjectCreation(context);
-                }
-                return true;
-              },
-              child: Padding(
-                padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-                child: DraggableScrollableSheet(
-                  expand: false,
-                  initialChildSize: 0.4,
-                  minChildSize: 0.4,
-                  maxChildSize: 0.6,
-                  builder: (context, scrollController) => ListView(
-                    controller: scrollController,
-                    children: [
-                      SubjectBottomSheet(
-                        titleController: _titleController,
-                        descriptionController: _descriptionController,
-                        onCreateSubject: () {
-                          _createSubject();
-                          Navigator.pop(context);
-                          _titleController.clear();
-                          _descriptionController.clear();
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
+          builder: (context) => _buildBottomSheet(context),
         ),
       ),
     );
@@ -272,14 +277,11 @@ class SubjectCard extends StatelessWidget {
   final Function onStudy;
 
   final Subject subject;
-  final double subjectCardSizeFactor = 0.375;
-  final double imageHeightFactor = 0.55;
-  final double infoHeightFactor = 0.33;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: MediaQuery.of(context).size.height * subjectCardSizeFactor,
+      height: MediaQuery.of(context).size.height * constants.subjectCardSizeFactor,
       child: Card(
         /* rounded corners */
         semanticContainer: true,
@@ -296,11 +298,11 @@ class SubjectCard extends StatelessWidget {
           child: Column(
             children: [
               FixedHeightImage(
-                height: MediaQuery.of(context).size.height * subjectCardSizeFactor * imageHeightFactor,
+                height: MediaQuery.of(context).size.height * constants.subjectCardSizeFactor * constants.imageHeightFactor,
                 image: subject.imageLink,
               ),
               SizedBox(
-                height: MediaQuery.of(context).size.height * subjectCardSizeFactor * infoHeightFactor,
+                height: MediaQuery.of(context).size.height * constants.subjectCardSizeFactor * constants.infoHeightFactor,
                 child: Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: SubjectCardContent(subject: subject, onStudy: onStudy),
@@ -336,47 +338,51 @@ class SubjectCardContent extends StatelessWidget {
           );
   }
 
+  _buildSubjectCardInfo(context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(subject.name, style: Theme.of(context).textTheme.headline6),
+        Row(
+          children: [
+            RichText(
+              text: TextSpan(
+                style: Theme.of(context).textTheme.caption,
+                children: [
+                  WidgetSpan(
+                    child: Icon(
+                      Icons.auto_stories_outlined,
+                      color: Colors.grey,
+                      size: Theme.of(context).textTheme.caption!.fontSize,
+                    ),
+                  ),
+                  TextSpan(text: ' ${subject.amountOfDecks}  \u2022 '),
+                  WidgetSpan(
+                    child: Icon(
+                      Icons.auto_awesome_motion_sharp,
+                      color: Colors.grey,
+                      size: Theme.of(context).textTheme.caption!.fontSize,
+                    ),
+                  ),
+                  TextSpan(text: ' ${subject.amountOfCards}  \u2022 '),
+                  _buildDueNotification(context),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
       alignment: Alignment.bottomRight,
       children: [
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(subject.name, style: Theme.of(context).textTheme.headline6),
-            Row(
-              children: [
-                RichText(
-                  text: TextSpan(
-                    style: Theme.of(context).textTheme.caption,
-                    children: [
-                      WidgetSpan(
-                        child: Icon(
-                          Icons.auto_stories_outlined,
-                          color: Colors.grey,
-                          size: Theme.of(context).textTheme.caption!.fontSize,
-                        ),
-                      ),
-                      TextSpan(text: ' ${subject.amountOfDecks}  \u2022 '),
-                      WidgetSpan(
-                        child: Icon(
-                          Icons.auto_awesome_motion_sharp,
-                          color: Colors.grey,
-                          size: Theme.of(context).textTheme.caption!.fontSize,
-                        ),
-                      ),
-                      TextSpan(text: ' ${subject.amountOfCards}  \u2022 '),
-                      _buildDueNotification(context),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+        _buildSubjectCardInfo(context),
         TextButton(
-          child: const Text('Study'),
+          child: Text(AppLocalizations.of(context)!.study),
           onPressed: () => onStudy(),
         ),
       ],
@@ -389,9 +395,11 @@ class SubjectBottomSheet extends StatelessWidget {
       {Key? key, required this.titleController, required this.descriptionController, this.onCreateSubject})
       : super(key: key);
 
+  final Function? onCreateSubject;
+
   final TextEditingController titleController;
   final TextEditingController descriptionController;
-  final Function? onCreateSubject;
+
 
   @override
   Widget build(BuildContext context) {
@@ -413,18 +421,18 @@ class SubjectBottomSheet extends StatelessWidget {
           ListTile(
             title: TextField(
               controller: titleController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 border: InputBorder.none,
-                hintText: 'Subject name',
+                hintText: AppLocalizations.of(context)!.subject_name_filler,
               ),
             ),
           ),
           ListTile(
             title: TextField(
               controller: descriptionController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 border: InputBorder.none,
-                hintText: 'Subject description',
+                hintText: AppLocalizations.of(context)!.subject_description_filler,
               ),
               style: Theme.of(context).textTheme.subtitle2,
             ),

@@ -3,11 +3,12 @@ import 'package:iternia/pages/subject_mod.dart';
 import 'package:iternia/logic.dart';
 import 'package:iternia/common.dart';
 import 'package:iternia/pages/swipe_learning.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:focused_menu/focused_menu.dart';
 import 'package:focused_menu/modals.dart';
 import '../constants.dart' as constants;
-import 'cards_view.dart';
+import 'flashcards_view.dart';
 
 // TODO standardize and cleanup
 class DeckView extends StatefulWidget {
@@ -43,7 +44,7 @@ class _DeckViewState extends State<DeckView> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => CardsView(
+        builder: (context) => FlashCardsView(
           title: widget.subject.decks[index].name,
           subject: widget.subject,
           deck: widget.subject.decks[index],
@@ -56,7 +57,7 @@ class _DeckViewState extends State<DeckView> {
     List<FlashCard> dueCards = widget.subject.decks[index].dueCardList;
 
     if (dueCards.isEmpty) {
-      showSimpleSnackbarNotification(context, 'Nothing to study');
+      showSimpleSnackbarNotification(context, AppLocalizations.of(context)!.swipelearning_nocards);
       return;
     }
 
@@ -64,7 +65,7 @@ class _DeckViewState extends State<DeckView> {
       context,
       MaterialPageRoute(
         builder: (context) => SwipeLearning(
-          title: 'Learning ${widget.subject.decks[index].name}',
+          title: AppLocalizations.of(context)!.swipelearning_heading(widget.subject.decks[index].name),
           subject: widget.subject,
           cardList: dueCards,
         ),
@@ -123,17 +124,17 @@ class _DeckViewState extends State<DeckView> {
                   onPressed: () => {},
                 )
                     : FocusedMenuItem(
-                    title: Text('description empty...',
+                    title: Text(AppLocalizations.of(context)!.subject_description_empty,
                         style: Theme.of(context).textTheme.caption),
                     onPressed: () {}),
                 FocusedMenuItem(
-                  title: const Text("Open"),
+                  title: Text(AppLocalizations.of(context)!.open),
                   trailingIcon: const Icon(Icons.open_in_new),
                   onPressed: () => _navigateToCardsView(context, index),
                 ),
                 FocusedMenuItem(
-                  title: const Text(
-                    "Delete",
+                  title: Text(
+                    AppLocalizations.of(context)!.delete,
                     style: TextStyle(color: Colors.redAccent),
                   ),
                   trailingIcon: const Icon(
@@ -155,7 +156,7 @@ class _DeckViewState extends State<DeckView> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton.extended(
-        label: const Text('Add deck'),
+        label: Text(AppLocalizations.of(context)!.deck_add),
         icon: const Icon(Icons.add),
         heroTag: 'add',
         shape:
@@ -215,7 +216,7 @@ class DeckCard extends StatelessWidget {
                 ],
               ),
               trailing: TextButton(
-                child: Text('Study'),
+                child: Text(AppLocalizations.of(context)!.study),
                 onPressed: () => onStudy(),
               ),
             ),
@@ -248,18 +249,18 @@ class DeckBottomSheet extends StatelessWidget {
           ListTile(
             title: TextField(
               controller: titleController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 border: InputBorder.none,
-                hintText: 'deck name...',
+                hintText: AppLocalizations.of(context)!.deck_name_filler,
               ),
             ),
           ),
           ListTile(
             title: TextField(
               controller: descriptionController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 border: InputBorder.none,
-                hintText: 'deck description...',
+                hintText: AppLocalizations.of(context)!.deck_description_filler,
               ),
               style: Theme.of(context).textTheme.subtitle2,
             ),
