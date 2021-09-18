@@ -39,6 +39,7 @@ dependencies:
   http: ^0.13.3
   html: ^0.15.0
   focused_menu: ^1.0.5
+  multi_select_item: ^1.0.3
 
 dev_dependencies:
   flutter_test:

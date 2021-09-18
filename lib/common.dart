@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
 
+// TODO standardize and cleanup
 class FixedHeightImage extends StatelessWidget {
-  const FixedHeightImage({Key? key, required this.height, required this.image})
-      : super(key: key);
+  const FixedHeightImage({Key? key, required this.height, required this.image}) : super(key: key);
 
   final double height;
   final String image;
@@ -36,17 +36,14 @@ class MinimalistAppBar extends AppBar {
           key: key,
           title: title,
           titleTextStyle: Theme.of(context).textTheme.headline6,
-          backgroundColor: Colors.transparent,
           elevation: 0,
-          iconTheme: const IconThemeData(
-            color: Colors.black,
-          ),
           bottom: bottom,
           actions: actions,
         );
 }
 
 Future<List<String>> loadImagesFromGoogleTask(String query) async {
+  // TODO are there ifdef debug thingies in dart?
   /* for testing */
   print('search for ${query}, debug returns turned on!');
   return [
@@ -63,8 +60,7 @@ Future<List<String>> loadImagesFromGoogleTask(String query) async {
     'q': query,
     'tbm': 'isch',
     'ijn': '0',
-    'api_key':
-        'd130d3e35504b53aee8d50e2729e42f22c4a389be10faffbfd5a28dbdb69254a',
+    'api_key': 'd130d3e35504b53aee8d50e2729e42f22c4a389be10faffbfd5a28dbdb69254a',
   };
 
   final uri = Uri.https('serpapi.com', '/search.json', queryParameters);
@@ -87,4 +83,31 @@ Future<List<String>> loadImagesFromGoogleTask(String query) async {
   } else {
     throw Exception('Failed');
   }
+}
+
+void showSimpleSnackbarNotification(BuildContext context, String text) {
+  var snackBar = SnackBar(
+    content: Text(text),
+  );
+
+  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+}
+
+String getOptimalDurationString(Duration duration) {
+  const weeksPerMonth = 4, daysPerMonth = 30, daysPerYear = 365;
+  var fnxList = [
+    (duration) => duration.inSeconds > Duration.secondsPerMinute ? null : '${duration.inSeconds}s',
+    (duration) => duration.inMinutes > Duration.minutesPerHour ? null : '${duration.inMinutes}m',
+    (duration) => duration.inHours > Duration.hoursPerDay ? null : '${duration.inHours}h',
+    (duration) => duration.inDays > DateTime.daysPerWeek ? null : '${duration.inDays}d',
+    (duration) => duration.inDays / DateTime.daysPerWeek > weeksPerMonth
+        ? null
+        : '${(duration.inDays / DateTime.daysPerWeek).round()}W',
+    (duration) => duration.inDays / daysPerMonth > DateTime.monthsPerYear
+        ? '${(duration.inDays / daysPerYear).round()}Y'
+        : '${(duration.inDays / daysPerMonth).round()}M',
+  ];
+
+  var strList = fnxList.map((fnx) => fnx(duration)).where((element) => element != null);
+  return strList.first!; // it exists in any case!
 }

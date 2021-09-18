@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:iternia/pages/subject_add.dart';
+import 'package:iternia/pages/subject_mod.dart';
 import 'package:iternia/logic.dart';
 import 'package:iternia/common.dart';
+import 'package:iternia/pages/swipe_learning.dart';
 
+import 'package:focused_menu/focused_menu.dart';
+import 'package:focused_menu/modals.dart';
+import '../constants.dart' as constants;
 import 'cards_view.dart';
 
+// TODO standardize and cleanup
 class DeckView extends StatefulWidget {
   const DeckView({Key? key, required this.title, required this.subject})
       : super(key: key);
@@ -34,16 +39,38 @@ class _DeckViewState extends State<DeckView> {
     super.dispose();
   }
 
-  void _navigateToCardsView(BuildContext context, int index) {
+  void _navigateToCardsView(BuildContext context, int index) async {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => CardsView(
           title: widget.subject.decks[index].name,
+          subject: widget.subject,
           deck: widget.subject.decks[index],
         ),
       ),
     );
+  }
+
+  void _navigateToDeckStudy(BuildContext context, int index) async {
+    List<FlashCard> dueCards = widget.subject.decks[index].dueCardList;
+
+    if (dueCards.isEmpty) {
+      showSimpleSnackbarNotification(context, 'Nothing to study');
+      return;
+    }
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SwipeLearning(
+          title: 'Learning ${widget.subject.decks[index].name}',
+          subject: widget.subject,
+          cardList: dueCards,
+        ),
+      ),
+    );
+    updateWidget();
   }
 
   void _createDeck() {
@@ -56,6 +83,16 @@ class _DeckViewState extends State<DeckView> {
     });
   }
 
+  void _deleteDeck(int index) {
+    setState(() {
+      widget.subject.decks.removeAt(index);
+    });
+  }
+
+  Future<void> updateWidget() async {
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,16 +101,65 @@ class _DeckViewState extends State<DeckView> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: ListView.builder(
-          //shrinkWrap: true,
-          itemCount: widget.subject.decks.length,
-          itemBuilder: (context, index) => DeckCard(
-            deck: widget.subject.decks[index],
-            onTap: () => _navigateToCardsView(context, index),
+        child: RefreshIndicator(
+          onRefresh: () => updateWidget(),
+          child: ListView.builder(
+            padding: const EdgeInsets.only(bottom: constants.edgeInsetFloatingActionButton),
+            physics: const AlwaysScrollableScrollPhysics(),
+            itemCount: widget.subject.decks.length,
+            itemBuilder: (context, index) => FocusedMenuHolder(
+              menuWidth: MediaQuery.of(context).size.width,
+              menuBoxDecoration: const BoxDecoration(
+                color: Colors.grey,
+                borderRadius: BorderRadius.all(Radius.circular(10.0)),
+              ),
+              menuItemExtent: 45,
+              menuOffset: 10.0,
+              menuItems: [
+                widget.subject.decks[index].description.isNotEmpty
+                    ? FocusedMenuItem(
+                  title: Text(widget.subject.decks[index].description,
+                      style: Theme.of(context).textTheme.caption),
+                  onPressed: () => {},
+                )
+                    : FocusedMenuItem(
+                    title: Text('description empty...',
+                        style: Theme.of(context).textTheme.caption),
+                    onPressed: () {}),
+                FocusedMenuItem(
+                  title: const Text("Open"),
+                  trailingIcon: const Icon(Icons.open_in_new),
+                  onPressed: () => _navigateToCardsView(context, index),
+                ),
+                FocusedMenuItem(
+                  title: const Text(
+                    "Delete",
+                    style: TextStyle(color: Colors.redAccent),
+                  ),
+                  trailingIcon: const Icon(
+                    Icons.delete,
+                    color: Colors.redAccent,
+                  ),
+                  onPressed: () => _deleteDeck(index),
+                ),
+              ],
+              onPressed: () {},
+              child: DeckCard(
+                deck: widget.subject.decks[index],
+                onTap: () => _navigateToCardsView(context, index),
+                onStudy: () => _navigateToDeckStudy(context, index),
+              ),
+            ),
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FloatingActionButton.extended(
+        label: const Text('Add deck'),
+        icon: const Icon(Icons.add),
+        heroTag: 'add',
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
         onPressed: () {
           showModalBottomSheet(
               context: context,
@@ -89,38 +175,48 @@ class _DeckViewState extends State<DeckView> {
                 );
               });
         },
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
       ),
     );
   }
 }
 
 class DeckCard extends StatelessWidget {
-  const DeckCard({Key? key, required this.deck, this.onTap}) : super(key: key);
+  const DeckCard({Key? key, required this.deck, required this.onTap, required this.onStudy})
+      : super(key: key);
 
   final Deck deck;
-  final Function? onTap;
+  final Function onTap;
+  final Function onStudy;
 
   @override
   Widget build(BuildContext context) {
     return Card(
       child: InkWell(
-        onTap: () => onTap!(),
+        onTap: () => onTap(),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.auto_awesome_motion_sharp),
-              title: Text(deck.name),
-              subtitle: Row(
+              leading: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Deck description (TODO)'),
+                  const Icon(Icons.auto_awesome_motion_sharp),
+                  Text(
+                    '${deck.amountOfDueCards}/${deck.amountOfCards}',
+                    style: Theme.of(context).textTheme.caption,
+                  ),
+                ],
+              ),
+              title: Text(deck.name),
+              subtitle: Wrap(
+                children: [
+                  Text(deck.description),
                 ],
               ),
               trailing: TextButton(
                 child: Text('Study'),
-                onPressed: () {},
+                onPressed: () => onStudy(),
               ),
             ),
           ],

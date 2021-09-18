@@ -1,15 +1,17 @@
+import 'package:flip_card/flip_card.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import '../logic.dart';
-import '../common.dart';
 import 'package:flutter_swipable/flutter_swipable.dart';
-import 'package:flip_card/flip_card.dart';
 
+import '../logic.dart';
+
+// TODO standardize and cleanup
 class SwipeLearning extends StatefulWidget {
-  const SwipeLearning({Key? key, required this.title, required this.cardList})
+  const SwipeLearning({Key? key, required this.title, required this.subject, required this.cardList})
       : super(key: key);
 
   final String title;
+  final Subject subject;
   final List<FlashCard> cardList;
 
   @override
@@ -20,21 +22,24 @@ class _SwipeLearningState extends State<SwipeLearning> {
   double _learningProgress = 0.0;
   int _currentCardIndex = 0;
 
-  void _nextCard() {
-    setState(() {
-      _learningProgress += 1.0 / widget.cardList.length;
-      _currentCardIndex++;
-      if (_currentCardIndex >= widget.cardList.length) {
-        // Navigator.pop(context);
-      }
-    });
+  void _nextCard(BuildContext context, FlashCardSwipe swipeDirection) {
+    widget.cardList[_currentCardIndex].update(widget.subject, swipeDirection);
+    if (++_currentCardIndex >= widget.cardList.length) {
+      Navigator.pop(context);
+    } else {
+      setState(() {
+        _learningProgress += 1.0 / widget.cardList.length;
+      });
+    }
   }
 
-  Widget _createStandardSplashCard(FlashCard card) {
+  Widget _createStandardSplashCard(BuildContext context, FlashCard card) {
     return SplashCard(
       /* key is just to force a new instance of SplashCard */
       key: Key(card.front),
-      onSwipeRight: (details) => _nextCard(),
+      onSwipeRight: (details) => _nextCard(context, FlashCardSwipe.right),
+      onSwipeLeft: (details) => _nextCard(context, FlashCardSwipe.left),
+      onSwipeUp: (details) => _nextCard(context, FlashCardSwipe.up),
       front: SplashCardContent(content: Text(card.front, style: Theme.of(context).textTheme.headline5?.copyWith(fontWeight: FontWeight.bold))),
       back: SplashCardContent(content: Text(card.back, style: Theme.of(context).textTheme.headline5?.copyWith(fontWeight: FontWeight.bold))),
     );
@@ -62,7 +67,7 @@ class _SwipeLearningState extends State<SwipeLearning> {
           ),
           Expanded(
             child:
-                _createStandardSplashCard(widget.cardList[_currentCardIndex]),
+                _createStandardSplashCard(context, widget.cardList[_currentCardIndex]),
           ),
         ],
       ),
@@ -97,6 +102,7 @@ class SplashCard extends StatelessWidget {
       onSwipeDown: (finalPosition) {},
       onSwipeEnd: (position, details) {},
       onSwipeStart: (details) {},
+      threshold: 0.9,
       child: FlipCard(
         direction: FlipDirection.HORIZONTAL,
         front: front,

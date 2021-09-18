@@ -3,11 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:focused_menu/focused_menu.dart';
 import 'package:focused_menu/modals.dart';
+import 'swipe_learning.dart';
 
 import '../common.dart';
 import '../logic.dart';
+import '../constants.dart' as constants;
 import 'deck_view.dart';
-import 'subject_add.dart';
+import 'subject_mod.dart';
+
+// TODO standardize and cleanup
 
 class SubjectView extends StatefulWidget {
   const SubjectView({
@@ -45,11 +49,9 @@ class _SubjectViewState extends State<SubjectView> {
     final Subject? result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => SubjectAdd(
+        builder: (context) => SubjectMod(
           title: 'Add subject',
-          subject: Subject(
-              name: _titleController.value.text,
-              description: _descriptionController.value.text),
+          subject: Subject(name: _titleController.value.text, description: _descriptionController.value.text),
         ),
       ),
     );
@@ -62,32 +64,54 @@ class _SubjectViewState extends State<SubjectView> {
   }
 
   void _navigateToDeckView(BuildContext context, int index) async {
-    Navigator.push(
+    await Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => DeckView(
-                title: widget.subjects[index].name,
-                subject: widget.subjects[index],
-              )),
+        builder: (context) => DeckView(
+          title: widget.subjects[index].name,
+          subject: widget.subjects[index],
+        ),
+      ),
     );
+
+    updateWidget();
   }
 
   void _navigateToSubjectEdit(BuildContext context, int index) async {
     final Subject? result = await Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => SubjectAdd(
-                title: 'Edit subject',
-                subject: widget.subjects[index],
-              )),
+        builder: (context) => SubjectMod(
+          title: 'Edit subject',
+          subject: widget.subjects[index],
+        ),
+      ),
     );
 
-    if (result != null) {
-      setState(() {});
-    }
+    if (result != null) updateWidget();
   }
 
-  void _navigateToSubjectStudy(BuildContext context, int index) async {}
+  void _navigateToSubjectStudy(BuildContext context, int index) async {
+    List<FlashCard> dueCards = widget.subjects[index].dueCardList;
+
+    if (dueCards.isEmpty) {
+      showSimpleSnackbarNotification(context, 'Nothing to study');
+      return;
+    }
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SwipeLearning(
+          title: 'Learning ${widget.subjects[index].name}',
+          subject: widget.subjects[index],
+          cardList: dueCards,
+        ),
+      ),
+    );
+
+    updateWidget();
+  }
 
   void _deleteSubject(int index) {
     widget.subjects.removeAt(index);
@@ -95,9 +119,7 @@ class _SubjectViewState extends State<SubjectView> {
   }
 
   void _createSubject() {
-    widget.subjects.add(Subject(
-        name: _titleController.value.text,
-        description: _descriptionController.value.text));
+    widget.subjects.add(Subject(name: _titleController.value.text, description: _descriptionController.value.text));
     updateWidget();
   }
 
@@ -114,90 +136,92 @@ class _SubjectViewState extends State<SubjectView> {
           children: [
             Text(widget.title),
             const Spacer(),
-            const Text(
+            TextButton(
+                onPressed: () {  },
+                child: Text(
               '𝕚𝕥𝕖𝕣𝕟𝕚𝕒',
-              style:
-                  TextStyle(color: Colors.amber, fontWeight: FontWeight.w900),
-            ),
+              style: Theme.of(context).textTheme.headline5,
+            ),),
           ],
         ),
       ),
       body: Center(
-          child: RefreshIndicator(
-        onRefresh: () => updateWidget(),
-        child: ListView.builder(
-          padding:
-              const EdgeInsets.only(bottom: 56),
-          physics: const AlwaysScrollableScrollPhysics(),
-          itemCount: widget.subjects.length,
-          itemBuilder: (context, index) => FocusedMenuHolder(
-            menuWidth: MediaQuery.of(context).size.width,
-            menuBoxDecoration: const BoxDecoration(
-              color: Colors.grey,
-              borderRadius: BorderRadius.all(Radius.circular(10.0)),
-            ),
-            menuItemExtent: 45,
-            menuOffset: 10.0,
-            menuItems: [
-              widget.subjects[index].description.isNotEmpty
-                  ? FocusedMenuItem(
-                      title: Text(widget.subjects[index].description,
-                          style: Theme.of(context).textTheme.caption),
-                      onPressed: () => {},
-                    )
-                  : FocusedMenuItem(
-                      title: Text('description empty...',
-                          style: Theme.of(context).textTheme.caption),
-                      onPressed: () {}),
-              FocusedMenuItem(
-                title: const Text("Open"),
-                trailingIcon: const Icon(Icons.open_in_new),
-                onPressed: () => _navigateToDeckView(context, index),
+        child: RefreshIndicator(
+          onRefresh: () => updateWidget(),
+          child: ListView.builder(
+            padding: const EdgeInsets.only(bottom: constants.edgeInsetFloatingActionButton),
+            physics: const AlwaysScrollableScrollPhysics(),
+            itemCount: widget.subjects.length,
+            itemBuilder: (context, index) => FocusedMenuHolder(
+              menuWidth: MediaQuery.of(context).size.width,
+              menuBoxDecoration: const BoxDecoration(
+                color: Colors.grey,
+                borderRadius: BorderRadius.all(Radius.circular(10.0)),
               ),
-              FocusedMenuItem(
-                title: const Text("Edit"),
-                trailingIcon: const Icon(Icons.edit),
-                onPressed: () => _navigateToSubjectEdit(context, index),
-              ),
-              FocusedMenuItem(
-                title: const Text("Share"),
-                trailingIcon: const Icon(Icons.share),
-                onPressed: () {
-                  // TODO need to implement export feature
-                  const snackBar = SnackBar(
-                    content: Text('Export not yet implemented'),
-                  );
+              menuItemExtent: 45,
+              menuOffset: 10.0,
+              menuItems: [
+                widget.subjects[index].description.isNotEmpty
+                    ? FocusedMenuItem(
+                        title: Text(widget.subjects[index].description, style: Theme.of(context).textTheme.caption),
+                        onPressed: () => {},
+                      )
+                    : FocusedMenuItem(
+                        title: Text('description empty...', style: Theme.of(context).textTheme.caption),
+                        onPressed: () {}),
+                FocusedMenuItem(
+                  title: const Text("Open"),
+                  trailingIcon: const Icon(Icons.open_in_new),
+                  onPressed: () => _navigateToDeckView(context, index),
+                ),
+                FocusedMenuItem(
+                  title: const Text("Edit"),
+                  trailingIcon: const Icon(Icons.edit),
+                  onPressed: () => _navigateToSubjectEdit(context, index),
+                ),
+                FocusedMenuItem(
+                  title: const Text("Share"),
+                  trailingIcon: const Icon(Icons.share),
+                  onPressed: () {
+                    // TODO need to implement export feature
+                    const snackBar = SnackBar(
+                      content: Text('Export not yet implemented'),
+                    );
 
-                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                },
-              ),
-              FocusedMenuItem(
-                title: const Text(
-                  "Delete",
-                  style: TextStyle(color: Colors.redAccent),
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  },
                 ),
-                trailingIcon: const Icon(
-                  Icons.delete,
-                  color: Colors.redAccent,
+                FocusedMenuItem(
+                  title: const Text(
+                    "Delete",
+                    style: TextStyle(color: Colors.redAccent),
+                  ),
+                  trailingIcon: const Icon(
+                    Icons.delete,
+                    color: Colors.redAccent,
+                  ),
+                  onPressed: () => _deleteSubject(index),
                 ),
-                onPressed: () => _deleteSubject(index),
+              ],
+              onPressed: () {},
+              child: SubjectCard(
+                subject: widget.subjects[index],
+                onClick: () => _navigateToDeckView(context, index),
+                onStudy: () => _navigateToSubjectStudy(context, index),
               ),
-            ],
-            onPressed: () {},
-            child: SubjectCard(
-              subject: widget.subjects[index],
-              onClick: () => _navigateToDeckView(context, index),
-              onStudy: () => _navigateToSubjectStudy(context, index),
             ),
           ),
         ),
-      )),
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton.extended(
+        label: const Text('Add subject'),
+        icon: const Icon(Icons.add),
+        heroTag: 'add',
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
         onPressed: () => showModalBottomSheet(
           context: context,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
           isDismissible: true,
           isScrollControlled: true,
           enableDrag: true,
@@ -210,8 +234,7 @@ class _SubjectViewState extends State<SubjectView> {
                 return true;
               },
               child: Padding(
-                padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).viewInsets.bottom),
+                padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
                 child: DraggableScrollableSheet(
                   expand: false,
                   initialChildSize: 0.4,
@@ -237,21 +260,13 @@ class _SubjectViewState extends State<SubjectView> {
             );
           },
         ),
-        label: const Text('Add subject'),
-        icon: const Icon(Icons.add),
-        heroTag: 'add',
       ),
     );
   }
 }
 
 class SubjectCard extends StatelessWidget {
-  const SubjectCard(
-      {Key? key,
-      required this.subject,
-      required this.onClick,
-      required this.onStudy})
-      : super(key: key);
+  const SubjectCard({Key? key, required this.subject, required this.onClick, required this.onStudy}) : super(key: key);
 
   final Function onClick;
   final Function onStudy;
@@ -270,7 +285,7 @@ class SubjectCard extends StatelessWidget {
         semanticContainer: true,
         clipBehavior: Clip.antiAliasWithSaveLayer,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
+          borderRadius: BorderRadius.circular(5.0),
         ),
         elevation: 5,
         margin: const EdgeInsets.all(12.0),
@@ -281,18 +296,14 @@ class SubjectCard extends StatelessWidget {
           child: Column(
             children: [
               FixedHeightImage(
-                height: MediaQuery.of(context).size.height *
-                    subjectCardSizeFactor *
-                    imageHeightFactor,
+                height: MediaQuery.of(context).size.height * subjectCardSizeFactor * imageHeightFactor,
                 image: subject.imageLink,
               ),
               SizedBox(
-                height: MediaQuery.of(context).size.height *
-                    subjectCardSizeFactor *
-                    infoHeightFactor,
+                height: MediaQuery.of(context).size.height * subjectCardSizeFactor * infoHeightFactor,
                 child: Padding(
                   padding: const EdgeInsets.all(12.0),
-                  child: SubjectCardContent(subject: subject),
+                  child: SubjectCardContent(subject: subject, onStudy: onStudy),
                 ),
               ),
             ],
@@ -304,7 +315,9 @@ class SubjectCard extends StatelessWidget {
 }
 
 class SubjectCardContent extends StatelessWidget {
-  const SubjectCardContent({Key? key, required this.subject}) : super(key: key);
+  const SubjectCardContent({Key? key, required this.subject, required this.onStudy}) : super(key: key);
+
+  final Function onStudy;
 
   final Subject subject;
 
@@ -319,10 +332,7 @@ class SubjectCardContent extends StatelessWidget {
           )
         : TextSpan(
             text: ' ${subject.amountOfDueCards}',
-            style: Theme.of(context)
-                .textTheme
-                .caption!
-                .copyWith(color: Colors.red),
+            style: Theme.of(context).textTheme.caption!.copyWith(color: Colors.red),
           );
   }
 
@@ -367,7 +377,7 @@ class SubjectCardContent extends StatelessWidget {
         ),
         TextButton(
           child: const Text('Study'),
-          onPressed: () {},
+          onPressed: () => onStudy(),
         ),
       ],
     );
@@ -376,10 +386,7 @@ class SubjectCardContent extends StatelessWidget {
 
 class SubjectBottomSheet extends StatelessWidget {
   const SubjectBottomSheet(
-      {Key? key,
-      required this.titleController,
-      required this.descriptionController,
-      this.onCreateSubject})
+      {Key? key, required this.titleController, required this.descriptionController, this.onCreateSubject})
       : super(key: key);
 
   final TextEditingController titleController;
@@ -399,9 +406,8 @@ class SubjectBottomSheet extends StatelessWidget {
             child: Container(
               width: MediaQuery.of(context).size.width * 0.1,
               height: MediaQuery.of(context).size.height * 0.01,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20.0),
-                  color: Theme.of(context).primaryColor),
+              decoration:
+                  BoxDecoration(borderRadius: BorderRadius.circular(20.0), color: Theme.of(context).primaryColor),
             ),
           ),
           ListTile(

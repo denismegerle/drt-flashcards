@@ -4,8 +4,9 @@ import 'dart:convert';
 import '../common.dart';
 import '../logic.dart';
 import 'deck_view.dart';
-import 'subject_add.dart';
+import 'subject_mod.dart';
 
+// TODO standardize and cleanup
 class ImageSearch extends StatefulWidget {
   const ImageSearch({
     Key? key,

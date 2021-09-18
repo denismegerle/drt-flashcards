@@ -4,18 +4,18 @@ import '../common.dart';
 import '../logic.dart';
 import 'image_search.dart';
 
-class SubjectAdd extends StatefulWidget {
-  const SubjectAdd({Key? key, required this.title, required this.subject})
-      : super(key: key);
+// TODO standardize and cleanup
+class SubjectMod extends StatefulWidget {
+  const SubjectMod({Key? key, required this.title, required this.subject}) : super(key: key);
 
   final String title;
   final Subject subject;
 
   @override
-  State<SubjectAdd> createState() => _SubjectAddState();
+  State<SubjectMod> createState() => _SubjectModState();
 }
 
-class _SubjectAddState extends State<SubjectAdd> {
+class _SubjectModState extends State<SubjectMod> {
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
 
@@ -46,6 +46,47 @@ class _SubjectAddState extends State<SubjectAdd> {
         widget.subject.imageLink = result;
       });
     }
+  }
+
+  void _navigateToSpreadTimeEdit(BuildContext context) async {
+    TextEditingController _controller = TextEditingController();
+    String? newSpreadTimeString = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        contentPadding: const EdgeInsets.all(16.0),
+        content: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                autofocus: true,
+                controller: _controller,
+                decoration: const InputDecoration(labelText: 'Initial Spread Time (in minutes)', hintText: 'eg. 1440'),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+              child: const Text('CANCEL'),
+              onPressed: () {
+                Navigator.pop(context);
+              }),
+          TextButton(
+              child: const Text('CONFIRM'),
+              onPressed: () {
+                Navigator.pop(context, _controller.text);
+              }),
+        ],
+      ),
+    );
+
+    if (newSpreadTimeString == null) return;
+    int? newSpreadTime = int.tryParse(newSpreadTimeString);
+    if (newSpreadTime == null || newSpreadTime < 1) return;
+
+    setState(() {
+      widget.subject.initialSpreadTime = newSpreadTime;
+    });
   }
 
   Widget _buildTopImage(BuildContext context) {
@@ -80,23 +121,13 @@ class _SubjectAddState extends State<SubjectAdd> {
         children: [
           TextField(
             controller: _titleController,
-            decoration: const InputDecoration(
-                hintText: 'title...'
-            ),
-            style: Theme.of(context)
-                .textTheme
-                .headline5
-                ?.copyWith(fontWeight: FontWeight.bold),
+            decoration: const InputDecoration(hintText: 'title...'),
+            style: Theme.of(context).textTheme.headline5?.copyWith(fontWeight: FontWeight.bold),
           ),
           TextField(
             controller: _descriptionController,
-            decoration: const InputDecoration.collapsed(
-                hintText: 'description...'
-            ),
-            style: Theme.of(context)
-                .textTheme
-                .caption
-                ?.copyWith(fontWeight: FontWeight.bold),
+            decoration: const InputDecoration.collapsed(hintText: 'description...'),
+            style: Theme.of(context).textTheme.caption?.copyWith(fontWeight: FontWeight.bold),
           )
         ],
       ),
@@ -110,8 +141,10 @@ class _SubjectAddState extends State<SubjectAdd> {
       child: Text(
         'Advanced',
         textAlign: TextAlign.left,
-        style: Theme.of(context).textTheme.caption?.copyWith(
-            fontWeight: FontWeight.w900, color: Theme.of(context).primaryColor),
+        style: Theme.of(context)
+            .textTheme
+            .caption
+            ?.copyWith(fontWeight: FontWeight.w900, color: Theme.of(context).primaryColor),
       ),
     );
   }
@@ -160,18 +193,23 @@ class _SubjectAddState extends State<SubjectAdd> {
             ),
           ),
           ListTile(
+            title: const Text('Initial Spread Time (in min)'),
+            subtitle: Text('${widget.subject.initialSpreadTime}'),
+            onTap: () => _navigateToSpreadTimeEdit(context),
+          ),
+          ListTile(
             title: const Text('Spread Factor Range'),
             subtitle: RangeSlider(
               values: widget.subject.spreadFactorRange,
               min: 1.0,
               max: 5.0,
               divisions: 40,
-              labels: RangeLabels('${widget.subject.spreadFactorRange.start}',
-                  '${widget.subject.spreadFactorRange.end}'),
+              labels:
+                  RangeLabels('${widget.subject.spreadFactorRange.start}', '${widget.subject.spreadFactorRange.end}'),
               onChanged: (value) {
                 setState(() {
-                  if (value.start < widget.subject.defaultSpreadFactor &&
-                      value.end > widget.subject.defaultSpreadFactor) {
+                  if (value.start < widget.subject.initialSpreadFactor &&
+                      value.end > widget.subject.initialSpreadFactor) {
                     widget.subject.spreadFactorRange = value;
                   }
                 });
@@ -179,18 +217,23 @@ class _SubjectAddState extends State<SubjectAdd> {
             ),
           ),
           ListTile(
-            title: const Text('Default Spread Factor'),
+            title: const Text('Initial Spread Factor'),
             subtitle: Slider(
-              value: widget.subject.defaultSpreadFactor,
+              value: widget.subject.initialSpreadFactor,
               min: widget.subject.spreadFactorRange.start,
               max: widget.subject.spreadFactorRange.end,
-              label: '${widget.subject.defaultSpreadFactor}',
+              divisions:
+                  ((widget.subject.spreadFactorRange.end - widget.subject.spreadFactorRange.start) / 0.1).round(),
+              label: '${widget.subject.initialSpreadFactor}',
               onChanged: (value) {
                 setState(() {
-                  widget.subject.defaultSpreadFactor = value;
+                  widget.subject.initialSpreadFactor = value;
                 });
               },
             ),
+          ),
+          ListTile(
+            subtitle: const Text('Spreading results in\n 0 1 2 3 4 timediff'), // TODO calc this here
           ),
         ],
       ),
@@ -217,15 +260,16 @@ class _SubjectAddState extends State<SubjectAdd> {
         ],
       ),
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            _buildTopImage(context),
-            _buildTitleTextField(context),
-            _buildAdvancedSettingsHeading(context),
-            _buildAdvancedSettings(context),
-          ],
-        ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _buildTopImage(context),
+              _buildTitleTextField(context),
+              _buildAdvancedSettingsHeading(context),
+              _buildAdvancedSettings(context),
+            ],
+          ),
+
       ),
     );
   }

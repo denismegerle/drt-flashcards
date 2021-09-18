@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import '../logic.dart';
 import '../common.dart';
 
+// TODO standardize and cleanup
 class CardAdd extends StatefulWidget {
-  const CardAdd({Key? key, required this.title, this.flashCard}) : super(key: key);
+  CardAdd({Key? key, required this.title, required this.subject, this.flashCard}) : super(key: key);
 
   final String title;
+  final Subject subject;
   final FlashCard? flashCard;
 
   @override
@@ -29,7 +31,7 @@ class _CardAddState extends State<CardAdd> {
       _backController = TextEditingController();
     }
 
-    newCard = widget.flashCard != null ? widget.flashCard!.clone() : FlashCard.fresh();
+    newCard = widget.flashCard != null ? widget.flashCard!.clone() : FlashCard();
   }
 
   @override
