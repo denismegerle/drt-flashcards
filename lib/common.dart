@@ -15,10 +15,9 @@ class FixedHeightImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: height,
       decoration: BoxDecoration(
         image: DecorationImage(
-          fit: BoxFit.fill,
+          fit: BoxFit.cover,
           image: NetworkImage(image),
         ),
       ),
@@ -44,9 +43,9 @@ class MinimalistAppBar extends AppBar {
 }
 
 Future<List<String>> loadImagesFromGoogleTask(BuildContext context, String query) async {
-  if (kDebugMode) {
+  if (kDebugMode || constants.serpapiKey.isEmpty) {
     /* for testing */
-    debugPrint('search for $query');
+    debugPrint('Fake searching for $query, no api key or debug mode!');
     return constants.imageLinkDebugList;
   }
 
@@ -85,18 +84,17 @@ void showSimpleSnackbarNotification(BuildContext context, String text) {
 }
 
 String getOptimalDurationString(Duration duration) {
-  const weeksPerMonth = 4, daysPerMonth = 30, daysPerYear = 365;
   var fnxList = [
     (duration) => duration.inSeconds > Duration.secondsPerMinute ? null : '${duration.inSeconds}s',
     (duration) => duration.inMinutes > Duration.minutesPerHour ? null : '${duration.inMinutes}m',
     (duration) => duration.inHours > Duration.hoursPerDay ? null : '${duration.inHours}h',
     (duration) => duration.inDays > DateTime.daysPerWeek ? null : '${duration.inDays}d',
-    (duration) => duration.inDays / DateTime.daysPerWeek > weeksPerMonth
+    (duration) => duration.inDays / DateTime.daysPerWeek > constants.weeksPerMonth
         ? null
         : '${(duration.inDays / DateTime.daysPerWeek).round()}W',
-    (duration) => duration.inDays / daysPerMonth > DateTime.monthsPerYear
-        ? '${(duration.inDays / daysPerYear).round()}Y'
-        : '${(duration.inDays / daysPerMonth).round()}M',
+    (duration) => duration.inDays / constants.daysPerMonth > DateTime.monthsPerYear
+        ? '${(duration.inDays / constants.daysPerYear).round()}Y'
+        : '${(duration.inDays / constants.daysPerMonth).round()}M',
   ];
 
   var strList = fnxList.map((fnx) => fnx(duration)).where((element) => element != null);

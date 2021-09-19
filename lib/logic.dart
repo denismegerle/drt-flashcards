@@ -1,12 +1,25 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'constants.dart' as constants;
+
+part 'logic.g.dart';
 
 enum FlashCardOrder { none, random }
 enum FlashCardSwipe { left, right, up }
 
+@JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
+class Database {
+  List<Subject> subjects;
+
+  Database({required this.subjects});
+
+  factory Database.fromJson(Map<String, dynamic> json) => _$DatabaseFromJson(json);
+
+  Map<String, dynamic> toJson() => _$DatabaseToJson(this);
+}
+
+@JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
 class Subject {
   String name;
   String description;
@@ -16,8 +29,10 @@ class Subject {
   bool easyBonus;
   FlashCardOrder learningOrder;
   int initialSpreadTime;
-  RangeValues spreadFactorRange;
   double initialSpreadFactor;
+
+  @RangeValuesSerializer()
+  RangeValues spreadFactorRange;
 
   int get amountOfDecks {
     return decks.length;
@@ -46,8 +61,13 @@ class Subject {
     this.spreadFactorRange = const RangeValues(2.0, 3.0),
     this.initialSpreadFactor = 2.5,
   });
+
+  factory Subject.fromJson(Map<String, dynamic> json) => _$SubjectFromJson(json);
+
+  Map<String, dynamic> toJson() => _$SubjectToJson(this);
 }
 
+@JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
 class Deck {
   String name;
   String description;
@@ -70,9 +90,13 @@ class Deck {
     this.description = '',
     this.cards = const <FlashCard>[],
   });
+
+  factory Deck.fromJson(Map<String, dynamic> json) => _$DeckFromJson(json);
+
+  Map<String, dynamic> toJson() => _$DeckToJson(this);
 }
 
-// TODO flashcard shit
+@JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
 class FlashCard {
   String front;
   String back;
@@ -82,20 +106,23 @@ class FlashCard {
   double spreadFactor;
 
   bool get isDue {
-    return true;
-  } // TODO calc this based on whatever algorithm chosen..., probably need getter then
+    return dueTime < 0;
+  }
 
   int get nextReviewTime {
     return lastReviewTime + spreadTime;
   }
 
   int get dueTime {
-    // TODO make getter dueTime
-    return 20000; // TODO proper calculation
+    return nextReviewTime - (DateTime.now().millisecondsSinceEpoch / Duration.millisecondsPerMinute).round();
   }
 
   double get progress {
-    return Random().nextDouble(); // prob dependend on spread time?
+    /* 10 mins are not good enough, 1 year spread time means u got the card */
+    if (spreadTime < 10) return 0.0;
+    if (spreadTime > constants.daysPerYear * Duration.minutesPerDay) return 1.0;
+
+    return spreadTime / (constants.daysPerYear * Duration.minutesPerDay);
   }
 
   FlashCard({
@@ -123,12 +150,48 @@ class FlashCard {
   }
 
   void update(Subject subject, FlashCardSwipe swipeDirection) {
-    // updated based on swipe direction and subject (constraints, bonus etc)
-    // isDue = false; // TODO obviously change...
+    /* just a random algorithm, did not research what is best for remembering elements */
+    lastReviewTime = (DateTime.now().millisecondsSinceEpoch / Duration.millisecondsPerMinute).round();
 
-    // TODO algorithm...
-    /*
-      1. update nextReviewTime (
-     */
+    switch (swipeDirection) {
+      case FlashCardSwipe.right:
+        spreadTime = (spreadTime * spreadFactor).round();
+        spreadFactor *= 1.1;
+        if (spreadFactor > subject.spreadFactorRange.end) spreadFactor = subject.spreadFactorRange.end;
+        break;
+      case FlashCardSwipe.left:
+        spreadTime = subject.initialSpreadTime;
+        spreadFactor *= 0.9;
+        if (spreadFactor < subject.spreadFactorRange.start) spreadFactor = subject.spreadFactorRange.start;
+        break;
+      case FlashCardSwipe.up:
+        if (subject.easyBonus) {
+          spreadTime = (spreadTime * spreadFactor * 2.0).round();
+          spreadFactor *= 1.2;
+          if (spreadFactor > subject.spreadFactorRange.end) spreadFactor = subject.spreadFactorRange.end;
+        } else {
+          spreadTime = (spreadTime * spreadFactor).round();
+          spreadFactor *= 1.2;
+          if (spreadFactor > subject.spreadFactorRange.end) spreadFactor = subject.spreadFactorRange.end;
+        }
+        break;
+    }
   }
+
+  factory FlashCard.fromJson(Map<String, dynamic> json) => _$FlashCardFromJson(json);
+
+  Map<String, dynamic> toJson() => _$FlashCardToJson(this);
+}
+
+class RangeValuesSerializer implements JsonConverter<RangeValues, Map<String, dynamic>> {
+  const RangeValuesSerializer();
+
+  @override
+  RangeValues fromJson(Map<String, dynamic> json) => RangeValues(json['start'], json['end']);
+
+  @override
+  Map<String, dynamic> toJson(RangeValues value) => {
+        'start': value.start,
+        'end': value.end,
+      };
 }

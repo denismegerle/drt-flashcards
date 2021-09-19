@@ -4,14 +4,16 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:focused_menu/focused_menu.dart';
 import 'package:focused_menu/modals.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 import '../common.dart';
 import '../constants.dart' as constants;
 import '../logic.dart';
+import '../themes.dart';
 import 'deck_view.dart';
 import 'subject_mod.dart';
 import 'swipe_learning.dart';
-
 
 class SubjectView extends StatefulWidget {
   const SubjectView({
@@ -129,12 +131,17 @@ class _SubjectViewState extends State<SubjectView> {
     return [
       widget.subjects[index].description.isNotEmpty
           ? FocusedMenuItem(
-        title: Text(widget.subjects[index].description, style: Theme.of(context).textTheme.caption),
-        onPressed: () => {},
-      )
+              title: Flexible(
+                child: Text(widget.subjects[index].description, style: Theme.of(context).textTheme.caption),
+              ),
+              onPressed: () => {},
+            )
           : FocusedMenuItem(
-          title: Text(AppLocalizations.of(context)!.subject_description_empty, style: Theme.of(context).textTheme.caption),
-          onPressed: () {}),
+              title: Flexible(
+                child: Text(AppLocalizations.of(context)!.subject_description_empty,
+                    style: Theme.of(context).textTheme.caption),
+              ),
+              onPressed: () {}),
       FocusedMenuItem(
         title: Text(AppLocalizations.of(context)!.open),
         trailingIcon: const Icon(Icons.open_in_new),
@@ -216,7 +223,10 @@ class _SubjectViewState extends State<SubjectView> {
             Text(AppLocalizations.of(context)!.subjects),
             const Spacer(),
             TextButton(
-              onPressed: () {},
+              onPressed: () {
+                ThemeDataProvider themeDataProvider = Provider.of(context, listen: false);
+                themeDataProvider.toggleTheme();
+              },
               child: Text(
                 constants.appLogoTitle,
                 style: Theme.of(context).textTheme.headline5,
@@ -228,18 +238,19 @@ class _SubjectViewState extends State<SubjectView> {
       body: Center(
         child: RefreshIndicator(
           onRefresh: () => updateWidget(),
-          child: ListView.builder(
+          child: StaggeredGridView.countBuilder(
+            crossAxisCount: 4,
+            staggeredTileBuilder: (int index) => StaggeredTile.count(2, index.isEven ? 3.5 : 2.5),
             padding: const EdgeInsets.only(bottom: constants.edgeInsetFloatingActionButton),
             physics: const AlwaysScrollableScrollPhysics(),
             itemCount: widget.subjects.length,
             itemBuilder: (context, index) => FocusedMenuHolder(
-              menuWidth: MediaQuery.of(context).size.width,
+              menuWidth: MediaQuery.of(context).size.width * 0.5,
               menuBoxDecoration: const BoxDecoration(
                 color: Colors.grey,
                 borderRadius: BorderRadius.all(Radius.circular(10.0)),
               ),
-              menuItemExtent: 45,
-              menuOffset: 10.0,
+              menuItemExtent: 35,
               menuItems: _buildFocusMenuItems(context, index),
               onPressed: () {},
               child: SubjectCard(
@@ -281,7 +292,6 @@ class SubjectCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: MediaQuery.of(context).size.height * constants.subjectCardSizeFactor,
       child: Card(
         /* rounded corners */
         semanticContainer: true,
@@ -297,16 +307,19 @@ class SubjectCard extends StatelessWidget {
           //onLongPress: () => _navigateToSubjectEdit(context),
           child: Column(
             children: [
-              FixedHeightImage(
-                height: MediaQuery.of(context).size.height * constants.subjectCardSizeFactor * constants.imageHeightFactor,
-                image: subject.imageLink,
-              ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * constants.subjectCardSizeFactor * constants.infoHeightFactor,
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: SubjectCardContent(subject: subject, onStudy: onStudy),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: NetworkImage(subject.imageLink),
+                    ),
+                  ),
                 ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: SubjectCardContent(subject: subject, onStudy: onStudy),
               ),
             ],
           ),
@@ -340,15 +353,17 @@ class SubjectCardContent extends StatelessWidget {
 
   _buildSubjectCardInfo(context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(subject.name, style: Theme.of(context).textTheme.headline6),
+        //const Spacer(),
         Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             RichText(
               text: TextSpan(
                 style: Theme.of(context).textTheme.caption,
                 children: [
+                  const TextSpan(text: ''),
                   WidgetSpan(
                     child: Icon(
                       Icons.auto_stories_outlined,
@@ -377,8 +392,8 @@ class SubjectCardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.bottomRight,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         _buildSubjectCardInfo(context),
         TextButton(
@@ -399,7 +414,6 @@ class SubjectBottomSheet extends StatelessWidget {
 
   final TextEditingController titleController;
   final TextEditingController descriptionController;
-
 
   @override
   Widget build(BuildContext context) {

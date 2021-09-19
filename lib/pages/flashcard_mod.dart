@@ -49,12 +49,6 @@ class _FlashCardModState extends State<FlashCardMod> {
         appBar: MinimalistAppBar(
           title: Text(widget.title),
           context: context,
-          bottom: TabBar(
-            tabs: [
-              Tab(icon: Text(AppLocalizations.of(context)!.card_front, style: Theme.of(context).textTheme.headline6)),
-              Tab(icon: Text(AppLocalizations.of(context)!.card_back, style: Theme.of(context).textTheme.headline6)),
-            ],
-          ),
           actions: [
             Padding(
               padding: const EdgeInsets.only(right: 10.0),
@@ -67,6 +61,12 @@ class _FlashCardModState extends State<FlashCardMod> {
                 },
               ),
             ),
+          ],
+        ),
+        bottomNavigationBar: TabBar(
+          tabs: [
+            Tab(icon: Text('\u140A ${AppLocalizations.of(context)!.card_front}', style: Theme.of(context).textTheme.headline6)),
+            Tab(icon: Text('${AppLocalizations.of(context)!.card_back} \u1405', style: Theme.of(context).textTheme.headline6)),
           ],
         ),
         body: TabBarView(
