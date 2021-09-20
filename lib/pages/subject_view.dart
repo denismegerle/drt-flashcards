@@ -51,7 +51,7 @@ class _SubjectViewState extends State<SubjectView> {
       MaterialPageRoute(
         builder: (context) => SubjectMod(
           title: AppLocalizations.of(context)!.subject_add,
-          subject: Subject(name: _titleController.value.text, description: _descriptionController.value.text),
+          subject: Subject(name: _titleController.value.text, description: _descriptionController.value.text, decks: []),
         ),
       ),
     );
@@ -119,7 +119,7 @@ class _SubjectViewState extends State<SubjectView> {
   }
 
   void _createSubject() {
-    widget.subjects.add(Subject(name: _titleController.value.text, description: _descriptionController.value.text));
+    widget.subjects.add(Subject(name: _titleController.value.text, description: _descriptionController.value.text, decks: []));
     updateWidget();
   }
 

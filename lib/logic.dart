@@ -53,7 +53,7 @@ class Subject {
   Subject({
     this.name = '',
     this.description = '',
-    this.decks = const <Deck>[],
+    this.decks = const [],
     this.imageLink = constants.sampleImageLink,
     this.easyBonus = true,
     this.learningOrder = FlashCardOrder.none,

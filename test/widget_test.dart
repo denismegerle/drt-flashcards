@@ -7,13 +7,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:iternia/logic.dart';
 
 import 'package:iternia/main.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const IterniaApp());
+    await tester.pumpWidget(IterniaApp(data: Database(subjects:_generateSampleData()),));
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);

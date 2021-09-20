@@ -30,15 +30,6 @@ main() async {
   );
 }
 
-/*
-  TODO:
-  - subject cards in grid view packen und die iwie sizemäßig anpassen
-  - dark mode on tap
-
-
-  - UNCOPYRIGHT, THEN
-  - FINISHING TOUCHES: STANDARDIZE, MAKE ALL COMMAS PROPERLY, CLEANUP IMPORTS IN ALL FILES
- */
 class IterniaApp extends StatefulWidget {
   const IterniaApp({Key? key, required this.data}) : super(key: key);
 
@@ -124,6 +115,7 @@ Future<String> _read(String saveFile) async {
   } catch (e) {
     debugPrint("Generating empty data");
     if (kDebugMode) return jsonEncode(Database(subjects: _generateSampleData()));
+    return jsonEncode(Database(subjects: _generateSampleData()));
     return jsonEncode(Database(subjects: <Subject>[]).toJson());
   }
 }
@@ -142,6 +134,7 @@ List<Subject> _generateSampleData() {
     Subject(
       name: 'Maths',
       description: 'My basic maths equations',
+      imageLink: 'https://live.staticflickr.com/7363/12306022283_72634e0e92.jpg',
       decks: [
         Deck(
           name: 'Maths Lesson 1',
@@ -162,6 +155,7 @@ List<Subject> _generateSampleData() {
     Subject(
       name: 'Chinese',
       description: 'Chinese vocabulary and more',
+      imageLink: 'https://live.staticflickr.com/8618/16198669451_68f4fe930a_b.jpg',
       decks: List<int>.generate(75, (i) => i + 1)
           .map(
             (i) => Deck(
@@ -177,6 +171,7 @@ List<Subject> _generateSampleData() {
     Subject(
       name: 'Japanese',
       description: 'Japanese vocabulary and grammar practices',
+      imageLink: 'https://live.staticflickr.com/7009/26402882003_84f94b61c1_b.jpg',
       decks: [
         Deck(
           name: 'Japanese Lesson 1',
@@ -204,6 +199,7 @@ List<Subject> _generateSampleData() {
     Subject(
       name: 'English',
       description: 'English is really simple, isn\'t it?',
+      imageLink: 'https://live.staticflickr.com/368/32687893172_0bd967fb3c_b.jpg',
       decks: [
         Deck(
           name: 'English Lesson 1',
